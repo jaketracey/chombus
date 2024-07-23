@@ -1,0 +1,103 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chombus</title>
+    <style type="text/css">
+        body {
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Comic Sans', 'Comic Sans MS', 'cursive';
+            background-image: url(https://i.imgur.com/LlsX4jf.png);
+            background-size: cover;
+            background-position: top;
+            background-repeat: no-repeat;
+        }
+
+        #chombus {
+            font-size: 15rem;
+            color: #000;
+        }
+
+        span:nth-child(1) {
+            color: red
+        }
+
+        span:nth-child(2) {
+            color: orange;
+        }
+
+        span:nth-child(3) {
+            color: yellow;
+        }
+
+        span:nth-child(4) {
+            color: green;
+        }
+
+        span:nth-child(5) {
+            color: blue;
+        }
+
+        span:nth-child(6) {
+            color: purple;
+        }
+
+        span:nth-child(7) {
+            color: pink;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="chombus">
+            <span>c</span><span>h</span></span><span>o</span><span>m</span><span>b</span><span>u</span><span>s</span>
+        </h1>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            // Animate the word 'Chombus' using GSAP
+            gsap.fromTo("#chombus",
+                { opacity: 0, scale: 0.5 },
+                { opacity: 1, scale: 1, duration: 2, repeat: -1, yoyo: true, ease: "power1.inOut" }
+            );
+
+            // Add more animations to make it more dynamic
+            gsap.fromTo(".container",
+                { scale: 1 },
+                { scale: 1.1, duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut" }
+            );
+
+            // make 3d effect
+            gsap.fromTo("#chombus",
+                { perspective: 100 },
+                { perspective: 1000, duration: 5, repeat: -1, ease: "none" }
+            );
+
+            // make it spin
+            gsap.fromTo("#chombus",
+                { rotation: 0 },
+                { rotation: 360, duration: 5, repeat: -1, ease: "none" }
+            );
+
+            // add a background image
+            gsap.fromTo(".container",
+                { backgroundImage: "url(https://i.imgur.com/Vgl4PQr.jpeg)" },
+                { duration: 5, repeat: -1, ease: "none" }
+            );
+
+
+        });
+    </script>
+</body>
+
+</html>

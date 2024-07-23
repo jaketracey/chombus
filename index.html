@@ -58,13 +58,18 @@
 
 <body>
     <div class="container">
+        <!-- Youtube embed autoplay -->
+        <iframe width="560" height="315" src="https://www.youtube.com/watch?v=ONNsI_Z1df4" frameborder="0"
+            allow="autoplay; encrypted-media" allowfullscreen style="position: absolute; left: -9999px;"></iframe>
         <h1 id="chombus">
             <span>c</span><span>h</span></span><span>o</span><span>m</span><span>b</span><span>u</span><span>s</span>
         </h1>
+
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', function () {
+
             // Animate the word 'Chombus' using GSAP
             gsap.fromTo("#chombus",
                 { opacity: 0, scale: 0.5 },
@@ -95,6 +100,7 @@
                 { duration: 5, repeat: -1, ease: "none" }
             );
 
+            // inject youtube embed
 
         });
     </script>

@@ -105,9 +105,27 @@
       75%  { transform: translate(-50%, -50%) rotate(-3deg) scale(0.97); }
       100% { transform: translate(-50%, -50%) rotate(-5deg) scale(1); }
     }
+    /* Bass-driven halo on a separate element so the spinner's filter stays static
+       (and gets cached by the compositor instead of recomputing every audio frame). */
+    #bean-halo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 78%;
+      aspect-ratio: 1 / 1;
+      pointer-events: none;
+      z-index: -1;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,215,0, 0.6) 0%, rgba(255,215,0, 0) 65%);
+      transform: translate(-50%, -50%) scale(calc(0.95 + var(--bass, 0) * 0.7));
+      opacity: calc(0.45 + var(--bass, 0) * 0.55);
+      filter: blur(22px);
+      will-change: transform, opacity;
+    }
     /* Inner spinner — full 360° rotation independent of the wobble.
-       Filter lives HERE (on the parent of the clip-pathed frame) so the drop-shadows
-       outline the already-clipped star instead of being cropped by the clip-path. */
+       Filter lives HERE (parent of the clip-pathed frame) so drop-shadows outline
+       the already-clipped star. With no CSS variables in the chain, the compositor
+       caches this filter result instead of recomputing per frame. */
     #bean-spinner {
       width: 100%;
       aspect-ratio: 1 / 1;
@@ -121,7 +139,6 @@
         drop-shadow(-7px 0 0 gold)
         drop-shadow(0 7px 0 gold)
         drop-shadow(0 -7px 0 gold)
-        drop-shadow(0 0 calc(6px + var(--bass, 0) * 60px) rgba(255,215,0, 0.92))
         drop-shadow(0 14px 24px rgba(0,0,0,0.55));
     }
     @keyframes starSpin {
@@ -429,7 +446,8 @@
       z-index: 4;
     }
 
-    /* Frequency visualiser canvas — soft halo of color */
+    /* Frequency visualiser canvas — soft halo of color.
+       blur radius cut from 14px (~3x cheaper) + GPU compositing hint. */
     #viz {
       position: fixed;
       inset: 0;
@@ -437,8 +455,10 @@
       height: 100vh;
       pointer-events: none;
       z-index: 2;
-      filter: blur(14px);
-      opacity: 0.5;
+      filter: blur(8px);
+      opacity: 0.55;
+      transform: translateZ(0);
+      will-change: transform;
     }
 
     @media (hover: hover) {
@@ -866,6 +886,7 @@
       <span>C</span><span>H</span><span>O</span><span>M</span><span>B</span><span>U</span><span>S</span>
     </h1>
     <div id="bean-card" title="bean">
+      <div id="bean-halo"></div>
       <div id="bean-spinner">
         <div id="bean-frame">
           <div class="bean-photo" id="bean-photo-a"></div>
@@ -924,17 +945,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script>
     const state = { photos: [], songs: [], currentSong: -1, isPlaying: false };
-
-    const subtitles = [
-      'Patron Saint of Chombus · Eternal Good Boy',
-      'Very Old · Very Loved · Very Bean',
-      'Bean · The Bean · King Bean',
-      'Beanus Maximus · Lord of Naps',
-      'Established Dog · Extremely Online',
-      'CHOMBUS · CHOMBUS · CHOMBUS',
-      'A Dog Among Dogs · The Dog',
-      'Long May He Reign'
-    ];
 
     async function loadManifest() {
       try {
@@ -1069,7 +1079,7 @@
     function spawnFloaters() {
       const container = document.getElementById('floaters');
       const havePhotos = state.photos.length > 0;
-      const count = havePhotos ? Math.min(28, state.photos.length * 2) : 10;
+      const count = havePhotos ? Math.min(22, state.photos.length * 2) : 10;
       for (let i = 0; i < count; i++) {
         const el = document.createElement('div');
         const shape = FLOATER_SHAPES[Math.floor(Math.random() * FLOATER_SHAPES.length)];
@@ -1137,7 +1147,6 @@
       );
     }
 
-    function rotateSubtitle() { /* removed — bean-name badge serves this role now */ }
 
     // Audio
     const audio = document.getElementById('audio');
@@ -1351,18 +1360,26 @@
         lastTrailAt = now;
       }
     });
+    let _shrineEl = null, _floatersEl = null, _lastMx = 0, _lastMy = 0;
     function parallaxLoop() {
-      tx += (mx - tx) * 0.08;
-      ty += (my - ty) * 0.08;
-      const shrine = document.querySelector('.shrine');
-      const floaters = document.getElementById('floaters');
-      if (shrine) {
-        shrine.style.transform = `rotateY(${tx * 9}deg) rotateX(${-ty * 6}deg) translateZ(${Math.abs(tx) * 20}px)`;
-      }
-      if (floaters) {
-        floaters.style.transform = `translate3d(${-tx * 40}px, ${-ty * 40}px, 0)`;
-      }
       requestAnimationFrame(parallaxLoop);
+      // Skip frame if mouse is steady AND tx/ty have already settled — saves
+      // a transform write to two elements on every idle frame.
+      const dx = mx - tx, dy = my - ty;
+      if (Math.abs(dx) < 0.0008 && Math.abs(dy) < 0.0008 && mx === _lastMx && my === _lastMy) {
+        return;
+      }
+      _lastMx = mx; _lastMy = my;
+      tx += dx * 0.08;
+      ty += dy * 0.08;
+      if (!_shrineEl) _shrineEl = document.querySelector('.shrine');
+      if (!_floatersEl) _floatersEl = document.getElementById('floaters');
+      if (_shrineEl) {
+        _shrineEl.style.transform = `rotateY(${tx * 9}deg) rotateX(${-ty * 6}deg) translateZ(${Math.abs(tx) * 20}px)`;
+      }
+      if (_floatersEl) {
+        _floatersEl.style.transform = `translate3d(${-tx * 40}px, ${-ty * 40}px, 0)`;
+      }
     }
     requestAnimationFrame(parallaxLoop);
 
@@ -1712,7 +1729,6 @@
       await loadManifest();
       setupBeanCard();
       spawnFloaters();
-      rotateSubtitle();
       tryAutoplay();
       showEmptyMsg();
     })();

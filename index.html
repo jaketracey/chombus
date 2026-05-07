@@ -95,27 +95,45 @@
       align-items: center;
       gap: 0.6rem;
       cursor: pointer;
-      animation: cardWobble 6.5s ease-in-out infinite;
+      animation: cardWobble 4.2s ease-in-out infinite;
     }
-    /* Keep translate centered while wobble-rotating */
+    /* Bigger wobble + scale pulse — keeps the centering translate intact */
     @keyframes cardWobble {
-      0%, 100% { transform: translate(-50%, -50%) rotate(-1.2deg); }
-      50%      { transform: translate(-50%, -50%) rotate(1.2deg); }
+      0%   { transform: translate(-50%, -50%) rotate(-5deg) scale(1); }
+      25%  { transform: translate(-50%, -50%) rotate(3deg) scale(1.04); }
+      50%  { transform: translate(-50%, -50%) rotate(5deg) scale(1); }
+      75%  { transform: translate(-50%, -50%) rotate(-3deg) scale(0.97); }
+      100% { transform: translate(-50%, -50%) rotate(-5deg) scale(1); }
+    }
+    /* Inner spinner — full 360° rotation independent of the wobble */
+    #bean-spinner {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      animation: starSpin 18s linear infinite;
+    }
+    @keyframes starSpin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
     }
     #bean-frame {
       position: relative;
       width: 100%;
-      aspect-ratio: 1 / 1;
+      height: 100%;
       background: transparent;
       /* Chunky 5-point star with inner radius ~65% so the bean photo is clearly visible. */
       clip-path: polygon(50% 0%, 69% 24%, 98% 35%, 81% 60%, 79% 90%, 50% 83%, 21% 90%, 19% 60%, 2% 35%, 31% 24%);
-      /* Stacked zero-blur drop-shadows fake the white outline that follows the star clip;
-         the bass-pulsing gold drop-shadow gives the holy-glow halo. */
+      /* Stacked zero-blur drop-shadows fake a layered outline around the star clip:
+         inner white ring (4 shadows), outer gold ring (4 shadows), then bass-pulsing
+         halo and a soft drop shadow. */
       filter:
         drop-shadow(3px 0 0 #fff)
         drop-shadow(-3px 0 0 #fff)
         drop-shadow(0 3px 0 #fff)
         drop-shadow(0 -3px 0 #fff)
+        drop-shadow(7px 0 0 gold)
+        drop-shadow(-7px 0 0 gold)
+        drop-shadow(0 7px 0 gold)
+        drop-shadow(0 -7px 0 gold)
         drop-shadow(0 0 calc(6px + var(--bass, 0) * 60px) rgba(255,215,0, 0.92))
         drop-shadow(0 14px 24px rgba(0,0,0,0.55));
     }
@@ -849,11 +867,13 @@
       <span>C</span><span>H</span><span>O</span><span>M</span><span>B</span><span>U</span><span>S</span>
     </h1>
     <div id="bean-card" title="bean">
-      <div id="bean-frame">
-        <div class="bean-photo" id="bean-photo-a"></div>
-        <div class="bean-photo" id="bean-photo-b"></div>
-        <div class="bean-frame-placeholder">🐶</div>
-        <div class="bean-frame-shine"></div>
+      <div id="bean-spinner">
+        <div id="bean-frame">
+          <div class="bean-photo" id="bean-photo-a"></div>
+          <div class="bean-photo" id="bean-photo-b"></div>
+          <div class="bean-frame-placeholder">🐶</div>
+          <div class="bean-frame-shine"></div>
+        </div>
       </div>
       <div id="bean-name">BEAN</div>
     </div>

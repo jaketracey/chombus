@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PET-A-BEAN — Chombus</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐶%3C/text%3E%3C/svg%3E">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', cursive;
+      color: #fff;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: linear-gradient(45deg,
+        #ff006e, #ff8500, #ffd700, #00ff7f, #00bfff, #8a2be2, #ff1493);
+      background-size: 400% 400%;
+      animation: gradientShift 18s ease infinite;
+      perspective: 1400px;
+      perspective-origin: 50% 45%;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.18), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255,215,0,0.22), transparent 40%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* drifting bean floaters in distance */
+    #floaters {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      transform-style: preserve-3d;
+      will-change: transform;
+      opacity: 0.55;
+    }
+    .floater {
+      position: absolute;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid white;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+      will-change: transform;
+    }
+    .floater img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* sparkles layer */
+    #sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .sparkle {
+      position: absolute;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+    }
+
+    /* marquee */
+    .marquee {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2.4rem;
+      overflow: hidden;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 3px solid gold;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marqueeScroll 22s linear infinite;
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: gold;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    }
+    .marquee-track span { padding: 0 1.5rem; }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* back link */
+    #back {
+      position: fixed;
+      top: 3rem;
+      left: 1rem;
+      z-index: 50;
+      color: white;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 1rem;
+      padding: 0.4rem 0.9rem;
+      background: rgba(0,0,0,0.55);
+      border: 2px solid gold;
+      border-radius: 999px;
+      text-shadow: 1px 1px 0 black;
+      transition: transform 0.18s, background 0.18s;
+    }
+    #back:hover { background: gold; color: black; transform: scale(1.06) rotate(-2deg); }
+
+    /* HUD */
+    #hud {
+      position: fixed;
+      top: 3rem;
+      left: 0; right: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      gap: 1.4rem;
+      flex-wrap: wrap;
+      padding: 0.5rem 1rem;
+      pointer-events: none;
+    }
+    .hud-card {
+      background: rgba(0,0,0,0.55);
+      border: 3px solid gold;
+      border-radius: 18px;
+      padding: 0.4rem 1rem;
+      text-align: center;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      min-width: 88px;
+    }
+    .hud-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      opacity: 0.85;
+      text-shadow: 1px 1px 0 black;
+    }
+    .hud-value {
+      font-size: 1.7rem;
+      font-weight: 900;
+      text-shadow: 2px 2px 0 black;
+      line-height: 1;
+    }
+    #timer-card .hud-value.danger { color: #ff1744; animation: timerPulse 0.5s ease-in-out infinite; }
+    @keyframes timerPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+    }
+
+    /* TITLE */
+    #title-wrap {
+      position: fixed;
+      top: 5.7rem;
+      left: 0; right: 0;
+      text-align: center;
+      pointer-events: none;
+      z-index: 4;
+    }
+    #title {
+      font-size: clamp(1.6rem, 5vw, 3.2rem);
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 0.06em;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.55);
+      filter: drop-shadow(0 0 18px rgba(255,255,255,0.35));
+      display: inline-block;
+    }
+    #title span {
+      display: inline-block;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+    #title span:nth-child(10n+1) { color: #ff1744; animation-delay: 0s; }
+    #title span:nth-child(10n+2) { color: #ff9100; animation-delay: 0.05s; }
+    #title span:nth-child(10n+3) { color: #ffea00; animation-delay: 0.10s; }
+    #title span:nth-child(10n+4) { color: #00e676; animation-delay: 0.15s; }
+    #title span:nth-child(10n+5) { color: #00b0ff; animation-delay: 0.20s; }
+    #title span:nth-child(10n+6) { color: #b388ff; animation-delay: 0.25s; }
+    #title span:nth-child(10n+7) { color: #ff4081; animation-delay: 0.30s; }
+    #title span:nth-child(10n+8) { color: #ffd700; animation-delay: 0.35s; }
+    #title span:nth-child(10n+9) { color: #ff5722; animation-delay: 0.40s; }
+    #title span:nth-child(10n) { color: #00ffd5; animation-delay: 0.45s; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
+      50% { transform: translateY(-14px) rotate(4deg) scale(1.12); }
+    }
+
+    /* COMBO */
+    #combo {
+      position: fixed;
+      top: 50%;
+      right: 2rem;
+      transform: translateY(-50%) rotate(-8deg);
+      font-size: clamp(2.2rem, 7vw, 5rem);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      pointer-events: none;
+      z-index: 30;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.55), 0 0 30px currentColor;
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+    #combo.active { opacity: 1; animation: comboShake 0.35s ease-out; }
+    @keyframes comboShake {
+      0% { transform: translateY(-50%) rotate(-8deg) scale(1.5); }
+      40% { transform: translateY(-50%) rotate(8deg) scale(1.2); }
+      100% { transform: translateY(-50%) rotate(-8deg) scale(1); }
+    }
+
+    /* GAME GRID */
+    #game-area {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      padding-top: 9rem;
+      padding-bottom: 1rem;
+    }
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: clamp(0.6rem, 2vw, 1.6rem);
+      width: min(94vw, 70vh);
+      aspect-ratio: 1;
+      transform-style: preserve-3d;
+    }
+    .hole {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(255,255,255,0.06), transparent 55%),
+        radial-gradient(circle at 50% 60%, #1a0830 0%, #060010 70%, #000 100%);
+      border: 4px solid rgba(255,255,255,0.85);
+      box-shadow:
+        inset 0 12px 24px rgba(0,0,0,0.85),
+        inset 0 -8px 16px rgba(255,255,255,0.06),
+        0 6px 18px rgba(0,0,0,0.5),
+        0 0 0 4px rgba(255,215,0,0.65);
+      overflow: hidden;
+      cursor: pointer;
+    }
+    .hole::after {
+      content: '';
+      position: absolute;
+      left: 8%; right: 8%;
+      bottom: -4%;
+      height: 22%;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0.6), transparent 70%);
+      pointer-events: none;
+      filter: blur(2px);
+    }
+    .bean {
+      position: absolute;
+      left: 8%;
+      top: 100%;
+      width: 84%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      overflow: hidden;
+      background: white;
+      border: 5px solid white;
+      box-shadow: 0 0 0 4px gold, 0 0 35px rgba(255,215,0,0.7), 0 14px 30px rgba(0,0,0,0.45);
+      pointer-events: none;
+      will-change: transform, opacity;
+      z-index: 2;
+    }
+    .bean img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .bean .emoji-face {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+      background: white;
+    }
+    .bean.golden {
+      box-shadow: 0 0 0 6px #fff200, 0 0 60px #fff200, 0 0 120px #ffe600, 0 14px 30px rgba(0,0,0,0.45);
+      animation: goldenSpin 1.6s linear infinite;
+    }
+    @keyframes goldenSpin {
+      from { filter: hue-rotate(0deg) brightness(1.1); }
+      to { filter: hue-rotate(360deg) brightness(1.3); }
+    }
+    .bean.grouch {
+      background: #2bd140;
+      border-color: #fff;
+      box-shadow: 0 0 0 4px #00c853, 0 0 35px rgba(0,255,80,0.6), 0 14px 30px rgba(0,0,0,0.45);
+    }
+    .bean.grouch .emoji-face {
+      background: transparent;
+      color: white;
+    }
+
+    /* floating score popups */
+    .floater-score {
+      position: fixed;
+      pointer-events: none;
+      font-size: clamp(1.6rem, 5vw, 3rem);
+      font-weight: 900;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+      z-index: 40;
+      will-change: transform, opacity;
+      letter-spacing: 0.04em;
+    }
+
+    /* sparkle burst */
+    .burst {
+      position: fixed;
+      pointer-events: none;
+      font-size: 1.5rem;
+      z-index: 35;
+      will-change: transform, opacity;
+      filter: drop-shadow(0 0 8px rgba(255,255,255,0.9));
+    }
+
+    /* MILESTONE banner */
+    #milestone {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-4deg);
+      font-size: clamp(2.5rem, 9vw, 6rem);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      pointer-events: none;
+      z-index: 60;
+      text-shadow: 5px 5px 0 rgba(0,0,0,0.6), 0 0 40px currentColor;
+      opacity: 0;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* COUNTDOWN */
+    #countdown {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1rem;
+      z-index: 80;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      pointer-events: auto;
+    }
+    #countdown .ready {
+      font-size: clamp(2rem, 7vw, 4.5rem);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.6);
+      color: gold;
+    }
+    #countdown .num {
+      font-size: clamp(8rem, 30vw, 22rem);
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 8px 8px 0 rgba(0,0,0,0.55);
+    }
+
+    /* GAME OVER */
+    #over {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.2rem;
+      z-index: 90;
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+    #over.show { display: flex; }
+    #over h2 {
+      font-size: clamp(2.6rem, 9vw, 6rem);
+      margin: 0;
+      letter-spacing: 0.05em;
+      text-shadow: 5px 5px 0 rgba(0,0,0,0.6);
+      color: gold;
+      animation: titleSpin 4s linear infinite;
+    }
+    @keyframes titleSpin {
+      from { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+      to { transform: rotate(-3deg); }
+    }
+    #over .stats {
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      font-weight: 900;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+      line-height: 1.6;
+    }
+    #over .stats .big {
+      font-size: clamp(2.6rem, 9vw, 5rem);
+      color: #fff200;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.6);
+    }
+    #over .new-high {
+      color: #ff1493;
+      font-size: clamp(1.4rem, 4vw, 2.2rem);
+      animation: bounce 0.6s ease-in-out infinite;
+    }
+    .btn {
+      display: inline-block;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: clamp(1.1rem, 3vw, 1.5rem);
+      padding: 0.8rem 1.6rem;
+      border-radius: 999px;
+      border: 4px solid white;
+      background: linear-gradient(45deg, #ff006e, #ff8500, #ffd700, #00bfff, #b388ff);
+      background-size: 300% 300%;
+      animation: gradientShift 6s ease infinite;
+      color: white;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.18s;
+      box-shadow: 0 8px 0 rgba(0,0,0,0.4), 0 12px 30px rgba(0,0,0,0.5);
+      letter-spacing: 0.04em;
+    }
+    .btn:hover { transform: scale(1.06) rotate(-2deg); }
+    .btn:active { transform: scale(0.94) translateY(3px); box-shadow: 0 3px 0 rgba(0,0,0,0.4); }
+    .btn.alt {
+      background: rgba(0,0,0,0.5);
+      border-color: gold;
+    }
+    .btn-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    /* CURSOR */
+    @media (hover: hover) {
+      html, body, * { cursor: none !important; }
+    }
+    .cursor-dot {
+      position: fixed;
+      top: 0; left: 0;
+      width: 36px; height: 36px;
+      margin-left: -18px; margin-top: -18px;
+      pointer-events: none;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      filter: drop-shadow(0 0 10px rgba(255,215,0,0.9)) drop-shadow(0 0 20px rgba(255,255,255,0.5));
+      will-change: transform;
+      animation: cursorPulse 1s ease-in-out infinite;
+    }
+    @keyframes cursorPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.25) rotate(180deg); }
+    }
+    .cursor-trail {
+      position: fixed;
+      pointer-events: none;
+      z-index: 998;
+      font-size: 1rem;
+      filter: drop-shadow(0 0 8px rgba(255,215,0,0.9));
+      will-change: transform, opacity;
+    }
+    @media (hover: none) {
+      .cursor-dot { display: none; }
+    }
+
+    /* freeze flash */
+    #freeze-flash {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle, rgba(0,255,80,0.4), transparent 70%);
+      pointer-events: none;
+      z-index: 70;
+      opacity: 0;
+    }
+
+    /* responsive tweaks */
+    @media (max-width: 600px) {
+      #hud { gap: 0.5rem; top: 2.7rem; }
+      .hud-card { min-width: 64px; padding: 0.3rem 0.6rem; }
+      .hud-value { font-size: 1.2rem; }
+      .hud-label { font-size: 0.55rem; }
+      #title-wrap { top: 5rem; }
+      #title { font-size: clamp(1.2rem, 6vw, 2.2rem); }
+      #combo { right: 0.5rem; font-size: clamp(1.6rem, 8vw, 3rem); }
+      #back { font-size: 0.8rem; padding: 0.3rem 0.7rem; top: 2.7rem; left: 0.4rem; }
+      #game-area { padding-top: 8.5rem; }
+    }
+    @media (max-height: 700px) {
+      #game-area { padding-top: 7.5rem; }
+      #grid { width: min(82vw, 60vh); }
+    }
+  </style>
+</head>
+<body>
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>★ PET BEAN ★ HE IS A GOOD BOY ★ DO NOT WHACK ★ ONLY PET ★ CHOMBUS.COM ★ BEAN ETERNAL ★ </span>
+      <span>★ PET BEAN ★ HE IS A GOOD BOY ★ DO NOT WHACK ★ ONLY PET ★ CHOMBUS.COM ★ BEAN ETERNAL ★ </span>
+    </div>
+  </div>
+
+  <a id="back" href="../">← chombus</a>
+
+  <div id="floaters"></div>
+  <div id="sparkles"></div>
+  <div class="cursor-dot" id="cursor">⭐</div>
+
+  <div id="hud">
+    <div class="hud-card" id="score-card">
+      <div class="hud-label">SCORE</div>
+      <div class="hud-value" id="score">0</div>
+    </div>
+    <div class="hud-card" id="timer-card">
+      <div class="hud-label">TIME</div>
+      <div class="hud-value" id="timer">30</div>
+    </div>
+    <div class="hud-card" id="high-card">
+      <div class="hud-label">HIGH</div>
+      <div class="hud-value" id="high">0</div>
+    </div>
+  </div>
+
+  <div id="title-wrap">
+    <h1 id="title">
+      <span>P</span><span>E</span><span>T</span><span>-</span><span>A</span><span>-</span><span>B</span><span>E</span><span>A</span><span>N</span>
+    </h1>
+  </div>
+
+  <div id="combo">x1</div>
+
+  <div id="game-area">
+    <div id="grid"></div>
+  </div>
+
+  <div id="milestone"></div>
+  <div id="freeze-flash"></div>
+
+  <div id="countdown">
+    <div class="ready">GET READY</div>
+    <div class="num" id="cd-num">3</div>
+  </div>
+
+  <div id="over">
+    <h2>GAME OVER</h2>
+    <div class="stats">
+      <div>YOU PETTED BEAN</div>
+      <div class="big" id="final-score">0</div>
+      <div>TIMES</div>
+      <div id="high-line">HIGH SCORE: <span id="final-high">0</span></div>
+      <div id="new-high" class="new-high" style="display:none">★ NEW HIGH SCORE ★</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" id="play-again">PLAY AGAIN</button>
+      <a class="btn alt" href="../">← BACK TO CHOMBUS</a>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+    // ====== STATE ======
+    const state = {
+      photos: [],
+      score: 0,
+      high: parseInt(localStorage.getItem('chombus-whack-high') || '0', 10),
+      combo: 0,
+      multiplier: 1,
+      timeLeft: 30,
+      running: false,
+      frozen: false,
+      pets: 0,
+      milestonesHit: new Set(),
+      activeBeans: new Map(), // hole index -> bean info
+      popTimers: new Set(),
+    };
+
+    const COMBO_TIERS = [
+      { at: 0, mult: 1 },
+      { at: 3, mult: 2 },
+      { at: 6, mult: 3 },
+      { at: 10, mult: 5 },
+    ];
+
+    const MILESTONES = [
+      { score: 20, text: 'AMAZING!', color: '#fff200' },
+      { score: 50, text: 'VERY GOOD BOY!', color: '#00e676' },
+      { score: 100, text: 'BEAN OVERLOAD!', color: '#ff1493' },
+      { score: 200, text: 'CHOMBUS SUPREME!', color: '#00ffd5' },
+    ];
+
+    const RAINBOW_COLORS = ['#ff1744','#ff9100','#ffea00','#00e676','#00b0ff','#b388ff','#ff4081','#ffd700','#00ffd5'];
+    const TRAIL_GLYPHS = ['✨', '⭐', '🌟', '💫', '⚡'];
+    const SPARKLE_GLYPHS = ['✨', '⭐', '🌟', '💫', '⚡', '🔆', '💖'];
+    const GROUCH_GLYPHS = ['🥦', '🧹', '🛁', '😾'];
+
+    // ====== MANIFEST ======
+    async function loadManifest() {
+      try {
+        const res = await fetch('../manifest.json?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          state.photos = Array.isArray(data.photos) ? data.photos.map(p => '../' + p) : [];
+        }
+      } catch (e) {
+        console.warn('Manifest fetch failed:', e);
+      }
+    }
+
+    function randPhoto() {
+      if (state.photos.length === 0) return null;
+      return state.photos[Math.floor(Math.random() * state.photos.length)];
+    }
+
+    // ====== FLOATERS (background bean drift) ======
+    function spawnFloaters() {
+      const container = document.getElementById('floaters');
+      const have = state.photos.length > 0;
+      const count = have ? Math.min(14, state.photos.length) : 8;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'floater';
+        const src = have ? state.photos[i % state.photos.length] : null;
+        el.innerHTML = src ? `<img src="${src}" alt="">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:white;font-size:2.4rem;">🐶</div>';
+        const size = 50 + Math.random() * 70;
+        el.style.width = el.style.height = size + 'px';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.top = Math.random() * 100 + 'vh';
+        el.style.opacity = 0.35 + Math.random() * 0.35;
+        container.appendChild(el);
+        animateFloater(el);
+      }
+    }
+    function animateFloater(el) {
+      const drift = () => {
+        gsap.to(el, {
+          x: '+=' + ((Math.random() - 0.5) * window.innerWidth * 0.6),
+          y: '+=' + ((Math.random() - 0.5) * window.innerHeight * 0.6),
+          rotation: '+=' + ((Math.random() - 0.5) * 360),
+          duration: 10 + Math.random() * 14,
+          ease: 'sine.inOut',
+          onComplete: drift
+        });
+      };
+      drift();
+    }
+
+    // ====== BACKGROUND SPARKLES ======
+    function spawnSparkle() {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      el.textContent = SPARKLE_GLYPHS[Math.floor(Math.random() * SPARKLE_GLYPHS.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = Math.random() * 100 + 'vh';
+      el.style.fontSize = (0.9 + Math.random() * 1.4) + 'rem';
+      document.getElementById('sparkles').appendChild(el);
+      gsap.fromTo(el,
+        { scale: 0, rotation: 0, opacity: 0 },
+        {
+          scale: 1, rotation: 360, opacity: 1, duration: 0.5,
+          onComplete: () => gsap.to(el, { opacity: 0, scale: 0, duration: 0.6, onComplete: () => el.remove() })
+        }
+      );
+    }
+    setInterval(spawnSparkle, 240);
+
+    // ====== CURSOR ======
+    const cursor = document.getElementById('cursor');
+    let lastTrailAt = 0;
+    function spawnTrail(x, y) {
+      const el = document.createElement('div');
+      el.className = 'cursor-trail';
+      el.textContent = TRAIL_GLYPHS[Math.floor(Math.random() * TRAIL_GLYPHS.length)];
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.fontSize = (0.7 + Math.random() * 0.7) + 'rem';
+      document.body.appendChild(el);
+      gsap.fromTo(el,
+        { scale: 0.4, opacity: 1, rotation: 0 },
+        {
+          scale: 1.4,
+          x: (Math.random() - 0.5) * 70,
+          y: 25 + Math.random() * 50,
+          rotation: (Math.random() - 0.5) * 540,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power2.out',
+          onComplete: () => el.remove()
+        }
+      );
+    }
+    document.addEventListener('mousemove', (e) => {
+      if (cursor) {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+      }
+      const now = performance.now();
+      if (now - lastTrailAt > 32) {
+        spawnTrail(e.clientX, e.clientY);
+        lastTrailAt = now;
+      }
+    });
+
+    // ====== HOLES / GRID ======
+    const HOLE_COUNT = 9;
+    function buildGrid() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      for (let i = 0; i < HOLE_COUNT; i++) {
+        const hole = document.createElement('div');
+        hole.className = 'hole';
+        hole.dataset.idx = i;
+        grid.appendChild(hole);
+      }
+    }
+
+    function holeBusy(idx) {
+      return state.activeBeans.has(idx);
+    }
+
+    function spawnBean() {
+      if (!state.running || state.frozen) return;
+      // pick a random non-busy hole
+      const free = [];
+      for (let i = 0; i < HOLE_COUNT; i++) if (!holeBusy(i)) free.push(i);
+      if (free.length === 0) return;
+      const idx = free[Math.floor(Math.random() * free.length)];
+      const hole = document.querySelector(`.hole[data-idx="${idx}"]`);
+      if (!hole) return;
+
+      // type: golden 8%, grouch 12%, normal otherwise
+      const r = Math.random();
+      let type = 'normal';
+      if (r < 0.08) type = 'golden';
+      else if (r < 0.20) type = 'grouch';
+
+      const bean = document.createElement('div');
+      bean.className = 'bean ' + (type === 'golden' ? 'golden' : type === 'grouch' ? 'grouch' : '');
+      if (type === 'grouch') {
+        const g = GROUCH_GLYPHS[Math.floor(Math.random() * GROUCH_GLYPHS.length)];
+        bean.innerHTML = `<div class="emoji-face">${g}</div>`;
+      } else {
+        const photo = randPhoto();
+        if (photo) {
+          bean.innerHTML = `<img src="${photo}" alt="bean">`;
+        } else {
+          bean.innerHTML = `<div class="emoji-face">🐶</div>`;
+        }
+      }
+
+      hole.appendChild(bean);
+
+      const info = { type, idx, el: bean, hit: false, ducked: false };
+      state.activeBeans.set(idx, info);
+
+      // pop up animation
+      gsap.fromTo(bean,
+        { y: '100%', rotation: -20, scale: 0.7 },
+        { y: '-12%', rotation: 0, scale: 1, duration: 0.32, ease: 'back.out(2)' }
+      );
+
+      // wiggle while up
+      gsap.to(bean, {
+        rotation: type === 'grouch' ? 14 : 6,
+        duration: 0.4,
+        delay: 0.32,
+        yoyo: true,
+        repeat: -1,
+        ease: 'sine.inOut'
+      });
+
+      // click/tap handler
+      const onPet = (e) => {
+        e.stopPropagation();
+        if (info.hit || info.ducked || state.frozen) return;
+        info.hit = true;
+        const rect = bean.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        if (type === 'grouch') {
+          handleGrouch(info, cx, cy);
+        } else {
+          handlePet(info, cx, cy);
+        }
+      };
+      bean.style.pointerEvents = 'auto';
+      bean.addEventListener('pointerdown', onPet);
+
+      // duration up
+      const upTime = type === 'golden'
+        ? 700 + Math.random() * 400
+        : type === 'grouch'
+          ? 900 + Math.random() * 400
+          : 600 + Math.random() * 700;
+
+      const t = setTimeout(() => {
+        if (info.hit) return;
+        info.ducked = true;
+        state.popTimers.delete(t);
+        // duck animation
+        gsap.killTweensOf(bean);
+        gsap.to(bean, {
+          y: '100%', rotation: 12, scale: 0.85, duration: 0.28, ease: 'back.in(1.6)',
+          onComplete: () => {
+            bean.remove();
+            state.activeBeans.delete(idx);
+            // missed (only beans, not grouches)
+            if (type !== 'grouch' && state.combo > 0) {
+              breakCombo();
+            }
+          }
+        });
+      }, upTime);
+      state.popTimers.add(t);
+    }
+
+    function handlePet(info, cx, cy) {
+      const isGold = info.type === 'golden';
+      const base = isGold ? 5 : 1;
+      const points = base * state.multiplier;
+      addScore(points);
+      state.combo += 1;
+      updateMultiplier();
+      pulseScore();
+
+      // bean reaction: spin + shrink + sparkle burst
+      const bean = info.el;
+      gsap.killTweensOf(bean);
+      gsap.to(bean, {
+        rotation: '+=' + (isGold ? 1080 : 720),
+        scale: 1.4,
+        duration: 0.35,
+        ease: 'power2.out',
+        onComplete: () => {
+          gsap.to(bean, {
+            scale: 0,
+            opacity: 0,
+            y: '-=40',
+            duration: 0.25,
+            ease: 'back.in(1.6)',
+            onComplete: () => {
+              bean.remove();
+              state.activeBeans.delete(info.idx);
+            }
+          });
+        }
+      });
+
+      floatingScore(cx, cy, isGold ? `+${points}!` : `+${points}`, isGold ? '#fff200' : pickColor(), isGold);
+      sparkleBurst(cx, cy, isGold ? 24 : 12, isGold);
+      state.pets += 1;
+      checkMilestones();
+    }
+
+    function handleGrouch(info, cx, cy) {
+      const bean = info.el;
+      gsap.killTweensOf(bean);
+      gsap.to(bean, {
+        scale: 1.4, rotation: '+=' + 180, duration: 0.18, ease: 'power3.out',
+        onComplete: () => gsap.to(bean, {
+          y: '100%', scale: 0.7, opacity: 0, duration: 0.3,
+          onComplete: () => { bean.remove(); state.activeBeans.delete(info.idx); }
+        })
+      });
+      breakCombo();
+      floatingScore(cx, cy, 'OOPS!', '#00e676');
+      // freeze flash
+      const flash = document.getElementById('freeze-flash');
+      gsap.fromTo(flash,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.15, yoyo: true, repeat: 3, onComplete: () => gsap.set(flash, { opacity: 0 }) }
+      );
+      // shake game
+      const grid = document.getElementById('grid');
+      gsap.fromTo(grid,
+        { x: 0 },
+        { x: 18, duration: 0.06, repeat: 9, yoyo: true, ease: 'power1.inOut', onComplete: () => gsap.set(grid, { x: 0 }) }
+      );
+      // freeze input
+      state.frozen = true;
+      setTimeout(() => { state.frozen = false; }, 800);
+    }
+
+    function breakCombo() {
+      if (state.combo === 0) return;
+      state.combo = 0;
+      updateMultiplier();
+      const c = document.getElementById('combo');
+      c.classList.remove('active');
+    }
+
+    function updateMultiplier() {
+      let mult = 1;
+      for (const tier of COMBO_TIERS) {
+        if (state.combo >= tier.at) mult = tier.mult;
+      }
+      const changed = mult !== state.multiplier;
+      state.multiplier = mult;
+      const c = document.getElementById('combo');
+      c.textContent = 'x' + mult;
+      c.style.color = mult >= 5 ? '#fff200' : mult >= 3 ? '#ff1493' : mult >= 2 ? '#00ffd5' : 'white';
+      if (state.combo >= 1) {
+        c.classList.remove('active');
+        // restart anim
+        void c.offsetWidth;
+        c.classList.add('active');
+      } else {
+        c.classList.remove('active');
+      }
+    }
+
+    function pickColor() {
+      return RAINBOW_COLORS[Math.floor(Math.random() * RAINBOW_COLORS.length)];
+    }
+
+    function floatingScore(x, y, text, color, big) {
+      const el = document.createElement('div');
+      el.className = 'floater-score';
+      el.textContent = text;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.color = color;
+      if (big) el.style.fontSize = 'clamp(2.4rem, 7vw, 4rem)';
+      document.body.appendChild(el);
+      gsap.fromTo(el,
+        { x: '-50%', y: '-50%', scale: 0.4, opacity: 0, rotation: -10 },
+        {
+          x: '-50%',
+          y: 'calc(-50% - ' + (80 + Math.random() * 40) + 'px)',
+          scale: 1.2,
+          opacity: 1,
+          rotation: (Math.random() - 0.5) * 30,
+          duration: 0.45,
+          ease: 'back.out(2)',
+          onComplete: () => gsap.to(el, {
+            opacity: 0,
+            y: 'calc(-50% - ' + (140 + Math.random() * 60) + 'px)',
+            duration: 0.55,
+            ease: 'power1.in',
+            onComplete: () => el.remove()
+          })
+        }
+      );
+    }
+
+    function sparkleBurst(x, y, n, isGold) {
+      for (let i = 0; i < n; i++) {
+        const el = document.createElement('div');
+        el.className = 'burst';
+        el.textContent = isGold ? (Math.random() < 0.4 ? '⭐' : '✨') : SPARKLE_GLYPHS[Math.floor(Math.random() * SPARKLE_GLYPHS.length)];
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        el.style.fontSize = (0.9 + Math.random() * 1.5) + 'rem';
+        if (isGold) el.style.color = '#fff200';
+        document.body.appendChild(el);
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 60 + Math.random() * 140;
+        gsap.fromTo(el,
+          { x: '-50%', y: '-50%', scale: 0, opacity: 1, rotation: 0 },
+          {
+            x: 'calc(-50% + ' + Math.cos(angle) * dist + 'px)',
+            y: 'calc(-50% + ' + Math.sin(angle) * dist + 'px)',
+            scale: 1.4,
+            rotation: (Math.random() - 0.5) * 720,
+            opacity: 0,
+            duration: 0.7 + Math.random() * 0.5,
+            ease: 'power2.out',
+            onComplete: () => el.remove()
+          }
+        );
+      }
+    }
+
+    // ====== SCORE / TIMER ======
+    function addScore(n) {
+      state.score += n;
+      document.getElementById('score').textContent = state.score;
+    }
+    function pulseScore() {
+      gsap.fromTo('#score', { scale: 1.6, color: '#fff200' }, { scale: 1, color: 'white', duration: 0.4, ease: 'power2.out' });
+    }
+    function updateHigh() {
+      document.getElementById('high').textContent = state.high;
+    }
+
+    function checkMilestones() {
+      for (const m of MILESTONES) {
+        if (state.score >= m.score && !state.milestonesHit.has(m.score)) {
+          state.milestonesHit.add(m.score);
+          showMilestone(m.text, m.color);
+        }
+      }
+    }
+
+    function showMilestone(text, color) {
+      const el = document.getElementById('milestone');
+      el.textContent = text;
+      el.style.color = color;
+      gsap.killTweensOf(el);
+      gsap.fromTo(el,
+        { opacity: 0, scale: 0.3, rotation: -20 },
+        {
+          opacity: 1, scale: 1, rotation: -4, duration: 0.45, ease: 'back.out(2.4)',
+          onComplete: () => {
+            gsap.to(el, {
+              opacity: 0, scale: 1.3, rotation: 8,
+              duration: 0.6, delay: 1.0, ease: 'power2.in'
+            });
+          }
+        }
+      );
+      // confetti burst from center
+      sparkleBurst(window.innerWidth / 2, window.innerHeight / 2, 30, true);
+    }
+
+    // ====== TIMER ======
+    let timerHandle = null;
+    function startTimer() {
+      state.timeLeft = 30;
+      document.getElementById('timer').textContent = state.timeLeft;
+      document.getElementById('timer').classList.remove('danger');
+      timerHandle = setInterval(() => {
+        state.timeLeft -= 1;
+        document.getElementById('timer').textContent = state.timeLeft;
+        if (state.timeLeft <= 5) {
+          document.getElementById('timer').classList.add('danger');
+        }
+        if (state.timeLeft <= 0) {
+          clearInterval(timerHandle);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    // ====== SPAWN LOOP ======
+    let spawnHandle = null;
+    function startSpawnLoop() {
+      const tick = () => {
+        if (!state.running) return;
+        // dynamic spawn count: more beans as time runs down
+        const elapsed = 30 - state.timeLeft;
+        const targetActive = Math.min(5, 2 + Math.floor(elapsed / 8));
+        const need = Math.max(0, targetActive - state.activeBeans.size);
+        for (let i = 0; i < need; i++) {
+          if (Math.random() < 0.85) spawnBean();
+        }
+        // schedule next
+        const delay = 350 + Math.random() * 600 - elapsed * 8;
+        spawnHandle = setTimeout(tick, Math.max(180, delay));
+      };
+      tick();
+    }
+
+    // ====== GAME FLOW ======
+    function resetGame() {
+      state.score = 0;
+      state.combo = 0;
+      state.multiplier = 1;
+      state.pets = 0;
+      state.frozen = false;
+      state.milestonesHit.clear();
+      state.activeBeans.clear();
+      state.popTimers.forEach(t => clearTimeout(t));
+      state.popTimers.clear();
+      document.getElementById('score').textContent = '0';
+      document.getElementById('combo').textContent = 'x1';
+      document.getElementById('combo').classList.remove('active');
+      document.querySelectorAll('.bean').forEach(b => b.remove());
+    }
+
+    function startGame() {
+      resetGame();
+      state.running = true;
+      startTimer();
+      startSpawnLoop();
+    }
+
+    function endGame() {
+      state.running = false;
+      if (spawnHandle) clearTimeout(spawnHandle);
+      state.popTimers.forEach(t => clearTimeout(t));
+      state.popTimers.clear();
+      // duck remaining beans
+      state.activeBeans.forEach(info => {
+        gsap.killTweensOf(info.el);
+        gsap.to(info.el, {
+          y: '100%', scale: 0.7, duration: 0.3,
+          onComplete: () => info.el.remove()
+        });
+      });
+      state.activeBeans.clear();
+
+      // high score
+      const isNew = state.score > state.high;
+      if (isNew) {
+        state.high = state.score;
+        localStorage.setItem('chombus-whack-high', String(state.high));
+      }
+      updateHigh();
+
+      // overlay
+      document.getElementById('final-score').textContent = state.score;
+      document.getElementById('final-high').textContent = state.high;
+      document.getElementById('new-high').style.display = isNew && state.score > 0 ? 'block' : 'none';
+      const over = document.getElementById('over');
+      over.classList.add('show');
+      gsap.fromTo(over,
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5 }
+      );
+      // celebration burst
+      for (let i = 0; i < 30; i++) {
+        setTimeout(() => sparkleBurst(
+          Math.random() * window.innerWidth,
+          Math.random() * window.innerHeight,
+          8,
+          Math.random() < 0.4
+        ), i * 60);
+      }
+    }
+
+    // ====== COUNTDOWN ======
+    function runCountdown(cb) {
+      const cd = document.getElementById('countdown');
+      const num = document.getElementById('cd-num');
+      const ready = cd.querySelector('.ready');
+      cd.style.display = 'flex';
+      cd.style.opacity = '1';
+      ready.textContent = 'GET READY';
+      const seq = ['3', '2', '1', 'GO!'];
+      let i = 0;
+      const showNext = () => {
+        if (i >= seq.length) {
+          gsap.to(cd, {
+            opacity: 0, duration: 0.4,
+            onComplete: () => { cd.style.display = 'none'; cb && cb(); }
+          });
+          return;
+        }
+        num.textContent = seq[i];
+        num.style.color = i === seq.length - 1 ? '#00e676' : pickColor();
+        gsap.fromTo(num,
+          { scale: 0.2, rotation: -180, opacity: 0 },
+          {
+            scale: 1.1, rotation: 0, opacity: 1, duration: 0.45, ease: 'back.out(2.2)',
+            onComplete: () => {
+              gsap.to(num, {
+                scale: 1.6, opacity: 0, rotation: 30,
+                duration: 0.4, delay: 0.25, ease: 'power2.in',
+                onComplete: () => { i++; showNext(); }
+              });
+            }
+          }
+        );
+      };
+      showNext();
+    }
+
+    // ====== EVENT WIRING ======
+    document.getElementById('play-again').addEventListener('click', () => {
+      const over = document.getElementById('over');
+      gsap.to(over, {
+        opacity: 0, duration: 0.3,
+        onComplete: () => {
+          over.classList.remove('show');
+          runCountdown(startGame);
+        }
+      });
+    });
+
+    // keyboard: space to play again on game over
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && document.getElementById('over').classList.contains('show')) {
+        e.preventDefault();
+        document.getElementById('play-again').click();
+      }
+    });
+
+    // ====== TITLE SPIN ======
+    gsap.to('#title', {
+      rotationY: 360, duration: 9, repeat: -1, ease: 'none', transformOrigin: '50% 50%'
+    });
+
+    // ====== INIT ======
+    (async () => {
+      buildGrid();
+      updateHigh();
+      await loadManifest();
+      spawnFloaters();
+      runCountdown(startGame);
+    })();
+  </script>
+</body>
+</html>

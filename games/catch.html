@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BEAN CATCH — chombus.com</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍖%3C/text%3E%3C/svg%3E">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', cursive;
+      color: #fff;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    body {
+      background: linear-gradient(45deg,
+        #ff006e, #ff8500, #ffd700, #00ff7f, #00bfff, #8a2be2, #ff1493);
+      background-size: 400% 400%;
+      animation: gradientShift 18s ease infinite;
+      perspective: 1400px;
+      perspective-origin: 50% 45%;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.18), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255,215,0,0.22), transparent 40%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Top marquee */
+    .marquee {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2.4rem;
+      overflow: hidden;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 3px solid gold;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marqueeScroll 32s linear infinite;
+      font-weight: 900;
+      font-size: 1rem;
+      letter-spacing: 0.18em;
+      color: gold;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    }
+    .marquee-track span { padding: 0 1.5rem; }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* Back link top-left */
+    .back-link {
+      position: fixed;
+      top: 0.55rem;
+      left: 0.9rem;
+      z-index: 100;
+      color: gold;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.7), 0 0 12px rgba(255,215,0,0.6);
+      padding: 0.25rem 0.55rem;
+      background: rgba(0,0,0,0.55);
+      border-radius: 999px;
+      border: 2px solid gold;
+      transition: transform 0.18s, background 0.18s;
+    }
+    .back-link:hover {
+      background: gold;
+      color: black;
+      transform: scale(1.08) rotate(-3deg);
+    }
+
+    /* Game title */
+    #title {
+      position: fixed;
+      top: 2.8rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(1.8rem, 6vw, 4.5rem);
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      filter: drop-shadow(0 0 18px rgba(255,255,255,0.4));
+      transform-style: preserve-3d;
+      z-index: 7;
+      white-space: nowrap;
+      pointer-events: none;
+      animation: titleFloat 4.5s ease-in-out infinite;
+    }
+    @keyframes titleFloat {
+      0%, 100% { transform: translateX(-50%) translateY(0) rotate(-1deg); }
+      50% { transform: translateX(-50%) translateY(-8px) rotate(1deg); }
+    }
+    #title span {
+      display: inline-block;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+    #title span:nth-child(7n+1) { color: #ff1744; animation-delay: 0s; }
+    #title span:nth-child(7n+2) { color: #ff9100; animation-delay: 0.08s; }
+    #title span:nth-child(7n+3) { color: #ffea00; animation-delay: 0.16s; }
+    #title span:nth-child(7n+4) { color: #00e676; animation-delay: 0.24s; }
+    #title span:nth-child(7n+5) { color: #00b0ff; animation-delay: 0.32s; }
+    #title span:nth-child(7n+6) { color: #b388ff; animation-delay: 0.40s; }
+    #title span:nth-child(7n+7) { color: #ff4081; animation-delay: 0.48s; }
+    #title .gap { width: 0.4em; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
+      50% { transform: translateY(-14px) rotate(4deg) scale(1.15); }
+    }
+
+    /* HUD */
+    #hud {
+      position: fixed;
+      top: 3rem;
+      right: 1rem;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0.35rem;
+      pointer-events: none;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.7);
+    }
+    .hud-row {
+      background: rgba(0,0,0,0.55);
+      border: 2px solid gold;
+      border-radius: 12px;
+      padding: 0.35rem 0.85rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      font-size: clamp(0.85rem, 2vw, 1.15rem);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+    .hud-row .label {
+      font-size: 0.65em;
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+    #score-val { color: #ffea00; }
+    #high-val { color: #ff80ff; }
+    #lives-val { letter-spacing: 0.1em; }
+
+    /* Game stage */
+    #stage {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    /* Falling items */
+    .faller {
+      position: absolute;
+      will-change: transform;
+      pointer-events: none;
+    }
+    .faller.photo {
+      border-radius: 50%;
+      overflow: hidden;
+      border: 4px solid white;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.5), 0 0 28px rgba(255,255,255,0.3);
+    }
+    .faller.photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .faller.golden {
+      border-radius: 50%;
+      border: 4px solid gold;
+      background: radial-gradient(circle at 35% 30%, #fffce0, #ffd700 60%, #b8860b);
+      box-shadow:
+        0 0 0 4px white,
+        0 0 35px rgba(255,215,0,1),
+        0 0 70px rgba(255,215,0,0.6),
+        0 6px 22px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: goldenSpin 1.4s linear infinite;
+    }
+    @keyframes goldenSpin {
+      from { filter: hue-rotate(0deg) drop-shadow(0 0 10px gold); }
+      to { filter: hue-rotate(360deg) drop-shadow(0 0 18px gold); }
+    }
+    .faller.golden .glyph {
+      font-size: 60%;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+    }
+    .faller.bad {
+      border-radius: 50%;
+      border: 4px solid #ff1744;
+      background: radial-gradient(circle at 35% 30%, #2a0010, #6a0020 70%, #1a0000);
+      box-shadow:
+        0 0 0 3px white,
+        0 0 24px rgba(255,23,68,0.85),
+        0 6px 22px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .faller.bad .glyph {
+      font-size: 60%;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+    }
+
+    /* Bowl (player) */
+    #bowl {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      width: clamp(90px, 14vw, 140px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 6px solid gold;
+      background: white;
+      box-shadow:
+        0 0 0 4px white,
+        0 0 50px rgba(255,215,0,0.85),
+        0 0 100px rgba(255,215,0,0.45),
+        0 12px 30px rgba(0,0,0,0.5);
+      transform: translate(-50%, 0);
+      will-change: transform;
+      z-index: 5;
+      animation: bowlGlow 2.4s ease-in-out infinite;
+    }
+    #bowl img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    #bowl .placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      background: white;
+    }
+    @keyframes bowlGlow {
+      0%, 100% { box-shadow: 0 0 0 4px white, 0 0 50px rgba(255,215,0,0.85), 0 0 100px rgba(255,215,0,0.45), 0 12px 30px rgba(0,0,0,0.5); }
+      50% { box-shadow: 0 0 0 4px white, 0 0 80px rgba(255,215,0,1), 0 0 160px rgba(255,215,0,0.7), 0 12px 30px rgba(0,0,0,0.5); }
+    }
+
+    /* Score popup */
+    .popup {
+      position: absolute;
+      pointer-events: none;
+      font-weight: 900;
+      font-size: clamp(1.4rem, 3vw, 2.4rem);
+      text-shadow: 3px 3px 0 black, 0 0 12px rgba(255,255,255,0.8);
+      z-index: 9;
+      will-change: transform, opacity;
+      letter-spacing: 0.06em;
+    }
+    .popup.good { color: #fffb00; }
+    .popup.golden { color: #ffd700; }
+    .popup.bad { color: #ff1744; }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      width: 90px; height: 90px;
+      border-radius: 50%;
+      overflow: hidden;
+      pointer-events: none;
+      border: 4px solid white;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+      z-index: 60;
+    }
+    .confetti img, .confetti .emoji {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      background: white;
+    }
+
+    /* Sparkles */
+    #sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 4;
+    }
+    .sparkle {
+      position: absolute;
+      font-size: 1.2rem;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.85));
+    }
+
+    /* Custom cursor */
+    @media (hover: hover) {
+      html, body, * { cursor: none !important; }
+    }
+    .cursor-dot {
+      position: fixed;
+      top: 0; left: 0;
+      width: 36px; height: 36px;
+      margin-left: -18px; margin-top: -18px;
+      pointer-events: none;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      filter: drop-shadow(0 0 10px rgba(255,215,0,0.9)) drop-shadow(0 0 20px rgba(255,255,255,0.5));
+      will-change: transform;
+      animation: cursorPulse 1s ease-in-out infinite;
+    }
+    @keyframes cursorPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.25) rotate(180deg); }
+    }
+    .cursor-trail {
+      position: fixed;
+      pointer-events: none;
+      z-index: 998;
+      font-size: 1rem;
+      filter: drop-shadow(0 0 8px rgba(255,215,0,0.9));
+      will-change: transform, opacity;
+    }
+    @media (hover: none) {
+      .cursor-dot { display: none; }
+    }
+
+    /* Overlay screens */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.4rem;
+      padding: 1rem;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .overlay h2 {
+      font-size: clamp(2.6rem, 12vw, 8rem);
+      margin: 0;
+      letter-spacing: 0.1em;
+      text-shadow: 5px 5px 0 rgba(0,0,0,0.6);
+      text-align: center;
+      animation: bigBounce 1.6s ease-in-out infinite;
+      color: #ffea00;
+      filter: drop-shadow(0 0 30px rgba(255,215,0,0.8));
+    }
+    @keyframes bigBounce {
+      0%, 100% { transform: translateY(0) rotate(-2deg) scale(1); }
+      50% { transform: translateY(-20px) rotate(2deg) scale(1.06); }
+    }
+    .overlay p {
+      font-size: clamp(1rem, 2.4vw, 1.5rem);
+      margin: 0;
+      text-align: center;
+      letter-spacing: 0.1em;
+      text-shadow: 2px 2px 0 black;
+      max-width: 90vw;
+    }
+    .overlay .stats {
+      font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+      font-weight: 900;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .overlay .stats .sval {
+      color: #ffea00;
+      text-shadow: 2px 2px 0 black, 0 0 18px rgba(255,235,0,0.6);
+    }
+    .overlay .stats .hval {
+      color: #ff80ff;
+      text-shadow: 2px 2px 0 black, 0 0 18px rgba(255,128,255,0.6);
+    }
+    .btn {
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: clamp(1rem, 2.6vw, 1.6rem);
+      padding: 0.85rem 1.8rem;
+      border-radius: 999px;
+      border: 4px solid white;
+      background: linear-gradient(45deg, #ff006e, #ff8500, #ffd700, #00bfff, #8a2be2);
+      background-size: 300% 300%;
+      color: white;
+      text-shadow: 2px 2px 0 black;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 40px rgba(255,215,0,0.45);
+      animation: btnGradient 5s ease infinite, btnWobble 1.8s ease-in-out infinite;
+      transition: transform 0.18s;
+    }
+    @keyframes btnGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes btnWobble {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+    .btn:hover { transform: scale(1.1) rotate(0deg); }
+    .btn:active { transform: scale(0.95); }
+    .btn-link {
+      display: inline-block;
+      text-decoration: none;
+      color: gold;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: clamp(0.85rem, 2vw, 1rem);
+      padding: 0.55rem 1.2rem;
+      border-radius: 999px;
+      border: 2px solid gold;
+      background: rgba(0,0,0,0.5);
+      text-shadow: 2px 2px 0 black;
+      transition: all 0.2s;
+    }
+    .btn-link:hover {
+      background: gold;
+      color: black;
+      transform: scale(1.06);
+    }
+
+    .countdown {
+      font-size: clamp(7rem, 25vw, 18rem);
+      font-weight: 900;
+      color: #ffea00;
+      text-shadow: 6px 6px 0 rgba(0,0,0,0.6);
+      filter: drop-shadow(0 0 40px rgba(255,215,0,0.9));
+      animation: countdownPulse 1s ease-in-out infinite;
+    }
+    @keyframes countdownPulse {
+      0%, 100% { transform: scale(1) rotate(-3deg); }
+      50% { transform: scale(1.25) rotate(3deg); }
+    }
+
+    /* Milestone celebration */
+    #celebration {
+      position: fixed;
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(3rem, 12vw, 8rem);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      pointer-events: none;
+      z-index: 80;
+      text-shadow: 5px 5px 0 black, 0 0 40px rgba(255,255,255,0.9);
+      text-transform: uppercase;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+
+    /* Hint */
+    .hint {
+      position: fixed;
+      bottom: 0.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      opacity: 0.65;
+      text-shadow: 1px 1px 0 black;
+      pointer-events: none;
+      letter-spacing: 0.1em;
+      z-index: 5;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      #title { top: 2.6rem; }
+      #hud { top: 6.4rem; right: 0.5rem; }
+      .hud-row { padding: 0.25rem 0.6rem; }
+      .hint { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>★ BEAN CATCH ★ CATCH THE BEAN ★ AVOID THE VACUUM ★ GOLDEN TREATS ★ GOOD BOY ★ CHOMBUS.COM ★ </span>
+      <span>★ BEAN CATCH ★ CATCH THE BEAN ★ AVOID THE VACUUM ★ GOLDEN TREATS ★ GOOD BOY ★ CHOMBUS.COM ★ </span>
+    </div>
+  </div>
+
+  <a href="../" class="back-link" id="back-link">← chombus</a>
+
+  <h1 id="title">
+    <span>B</span><span>E</span><span>A</span><span>N</span><span class="gap"></span><span>C</span><span>A</span><span>T</span><span>C</span><span>H</span>
+  </h1>
+
+  <div id="hud">
+    <div class="hud-row"><span class="label">score</span><span id="score-val">0</span></div>
+    <div class="hud-row"><span class="label">best</span><span id="high-val">0</span></div>
+    <div class="hud-row"><span class="label">lives</span><span id="lives-val">❤️❤️❤️</span></div>
+  </div>
+
+  <div id="stage">
+    <div id="bowl"><div class="placeholder">🐶</div></div>
+  </div>
+
+  <div id="sparkles"></div>
+  <div id="celebration"></div>
+  <div class="cursor-dot" id="cursor">⭐</div>
+
+  <div class="hint" id="hint">MOVE: mouse / touch / ←→ keys · CATCH BEANS · DODGE 🧹🥦🛁</div>
+
+  <!-- START overlay -->
+  <div class="overlay" id="start-overlay">
+    <h2>BEAN CATCH</h2>
+    <p>CATCH THE BEAN! GRAB GOLDEN TREATS! AVOID THE EVILS!</p>
+    <p style="opacity:0.85;font-size:0.95rem">🐶 = +1 &nbsp; 🍖🥩🥓 = +5 &nbsp; 🧹🥦🛁 = -1 LIFE</p>
+    <button class="btn" id="start-btn">START</button>
+    <a href="../" class="btn-link">← back to chombus</a>
+  </div>
+
+  <!-- COUNTDOWN overlay -->
+  <div class="overlay" id="countdown-overlay" style="display:none">
+    <p style="margin-bottom:0">GET READY...</p>
+    <div class="countdown" id="countdown-num">3</div>
+  </div>
+
+  <!-- GAME OVER overlay -->
+  <div class="overlay" id="gameover-overlay" style="display:none">
+    <h2>GAME OVER</h2>
+    <div class="stats">
+      <div>SCORE: <span class="sval" id="final-score">0</span></div>
+      <div>BEST: <span class="hval" id="final-high">0</span></div>
+    </div>
+    <p id="gameover-comment" style="font-size:clamp(1.1rem,3vw,1.8rem)">BEAN BELIEVES IN YOU.</p>
+    <button class="btn" id="play-again-btn">PLAY AGAIN</button>
+    <a href="../" class="btn-link">← back to chombus</a>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+    // ---------- GSAP fallback (in case CDN blocked) ----------
+    const hasGsap = typeof window.gsap !== 'undefined';
+    const gsapShim = {
+      to: (targets, vars) => {
+        const els = Array.isArray(targets) ? targets : (typeof targets === 'string' ? document.querySelectorAll(targets) : [targets]);
+        els.forEach(el => {
+          if (!el || !el.style) return;
+          const dur = (vars.duration || 0.4) * 1000;
+          el.style.transition = `all ${dur}ms ease`;
+          if ('opacity' in vars) el.style.opacity = vars.opacity;
+          if ('scale' in vars || 'rotation' in vars || 'x' in vars || 'y' in vars) {
+            const sc = vars.scale != null ? vars.scale : 1;
+            const rot = vars.rotation != null ? vars.rotation : 0;
+            const x = vars.x != null ? vars.x : 0;
+            const y = vars.y != null ? vars.y : 0;
+            el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;
+          }
+          if (vars.onComplete) setTimeout(vars.onComplete, dur);
+        });
+      },
+      fromTo: (targets, fromVars, toVars) => {
+        const els = Array.isArray(targets) ? targets : (typeof targets === 'string' ? document.querySelectorAll(targets) : [targets]);
+        els.forEach(el => {
+          if (!el || !el.style) return;
+          if ('opacity' in fromVars) el.style.opacity = fromVars.opacity;
+          if ('scale' in fromVars || 'rotation' in fromVars || 'x' in fromVars || 'y' in fromVars) {
+            const sc = fromVars.scale != null ? fromVars.scale : 1;
+            const rot = fromVars.rotation != null ? fromVars.rotation : 0;
+            const x = fromVars.x != null ? fromVars.x : 0;
+            const y = fromVars.y != null ? fromVars.y : 0;
+            el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;
+          }
+          requestAnimationFrame(() => gsapShim.to(el, toVars));
+        });
+      },
+      set: (target, vars) => {
+        const el = target;
+        if (!el || !el.style) return;
+        if ('x' in vars || 'y' in vars || 'scale' in vars || 'rotation' in vars) {
+          const sc = vars.scale != null ? vars.scale : 1;
+          const rot = vars.rotation != null ? vars.rotation : 0;
+          const x = vars.x != null ? vars.x : 0;
+          const y = vars.y != null ? vars.y : 0;
+          el.style.transform = `translate(${x}px,${y}px) rotate(${rot}deg) scale(${sc})`;
+        }
+        if ('opacity' in vars) el.style.opacity = vars.opacity;
+      }
+    };
+    const G = hasGsap ? window.gsap : gsapShim;
+
+    // ---------- State ----------
+    const state = {
+      photos: [],
+      score: 0,
+      lives: 3,
+      high: parseInt(localStorage.getItem('chombus-catch-high') || '0', 10),
+      bowlX: window.innerWidth / 2,
+      bowlW: 0,
+      running: false,
+      fallers: [],     // { el, x, y, vx, vy, w, type, points }
+      lastSpawn: 0,
+      spawnGap: 900,   // ms between spawns
+      milestones: { 25: false, 50: false, 100: false, 200: false, 300: false, 500: false }
+    };
+
+    const GOOD_GLYPH = '🐶';
+    const GOLDEN_GLYPHS = ['🍖', '🥩', '🥓'];
+    const BAD_GLYPHS = ['🧹', '🥦', '🛁', '🧼', '💉'];
+    const BAD_NAMES = { '🧹': 'VACUUM', '🥦': 'BROCCOLI', '🛁': 'BATH!', '🧼': 'SOAP', '💉': 'VET!' };
+
+    const stage = document.getElementById('stage');
+    const bowl = document.getElementById('bowl');
+    const scoreEl = document.getElementById('score-val');
+    const highEl = document.getElementById('high-val');
+    const livesEl = document.getElementById('lives-val');
+    const startOverlay = document.getElementById('start-overlay');
+    const countdownOverlay = document.getElementById('countdown-overlay');
+    const countdownNum = document.getElementById('countdown-num');
+    const gameoverOverlay = document.getElementById('gameover-overlay');
+    const finalScoreEl = document.getElementById('final-score');
+    const finalHighEl = document.getElementById('final-high');
+    const gameoverComment = document.getElementById('gameover-comment');
+
+    // ---------- Manifest ----------
+    async function loadManifest() {
+      try {
+        const res = await fetch('../manifest.json?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          state.photos = Array.isArray(data.photos) ? data.photos.map(p => '../' + p) : [];
+        }
+      } catch (e) {
+        console.warn('manifest fetch failed', e);
+      }
+    }
+
+    function setupBowl() {
+      bowl.innerHTML = '';
+      if (state.photos.length > 0) {
+        const src = state.photos[0];
+        const img = document.createElement('img');
+        img.src = src;
+        img.alt = 'bean';
+        bowl.appendChild(img);
+      } else {
+        const ph = document.createElement('div');
+        ph.className = 'placeholder';
+        ph.textContent = '🐶';
+        bowl.appendChild(ph);
+      }
+      // Compute width once after layout
+      requestAnimationFrame(() => {
+        state.bowlW = bowl.offsetWidth;
+      });
+    }
+
+    function updateHud() {
+      scoreEl.textContent = state.score;
+      highEl.textContent = state.high;
+      livesEl.textContent = state.lives > 0 ? '❤️'.repeat(state.lives) : '💔';
+    }
+
+    // ---------- Bowl movement ----------
+    function setBowlX(x) {
+      const half = (state.bowlW || bowl.offsetWidth) / 2;
+      const min = half + 4;
+      const max = window.innerWidth - half - 4;
+      state.bowlX = Math.max(min, Math.min(max, x));
+      bowl.style.left = state.bowlX + 'px';
+    }
+
+    let pointerActive = false;
+    document.addEventListener('mousemove', (e) => {
+      if (state.running) setBowlX(e.clientX);
+    });
+    document.addEventListener('pointerdown', (e) => {
+      pointerActive = true;
+      if (state.running) setBowlX(e.clientX);
+    });
+    document.addEventListener('pointerup', () => { pointerActive = false; });
+    document.addEventListener('touchmove', (e) => {
+      if (!e.touches[0]) return;
+      if (state.running) {
+        setBowlX(e.touches[0].clientX);
+      }
+    }, { passive: true });
+    document.addEventListener('touchstart', (e) => {
+      if (!e.touches[0]) return;
+      if (state.running) setBowlX(e.touches[0].clientX);
+    }, { passive: true });
+
+    let leftHeld = false, rightHeld = false;
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'ArrowLeft') leftHeld = true;
+      if (e.code === 'ArrowRight') rightHeld = true;
+      if (e.code === 'Space' && !state.running && startOverlay.style.display !== 'none') {
+        startGame();
+      }
+    });
+    document.addEventListener('keyup', (e) => {
+      if (e.code === 'ArrowLeft') leftHeld = false;
+      if (e.code === 'ArrowRight') rightHeld = false;
+    });
+
+    // ---------- Spawning ----------
+    function rollType() {
+      const r = Math.random();
+      if (r < 0.70) return 'good';
+      if (r < 0.80) return 'golden';
+      return 'bad';
+    }
+
+    function spawnFaller() {
+      const type = rollType();
+      const el = document.createElement('div');
+      const size = 60 + Math.random() * 40; // 60-100
+      el.style.width = el.style.height = size + 'px';
+      const x = Math.random() * (window.innerWidth - size - 20) + 10;
+      el.style.left = x + 'px';
+      el.style.top = '-120px';
+
+      if (type === 'good') {
+        el.className = 'faller photo';
+        if (state.photos.length > 0) {
+          const src = state.photos[Math.floor(Math.random() * state.photos.length)];
+          const img = document.createElement('img');
+          img.src = src;
+          el.appendChild(img);
+        } else {
+          el.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2.6rem;background:white">${GOOD_GLYPH}</div>`;
+        }
+      } else if (type === 'golden') {
+        el.className = 'faller golden';
+        const glyph = GOLDEN_GLYPHS[Math.floor(Math.random() * GOLDEN_GLYPHS.length)];
+        el.innerHTML = `<div class="glyph" style="font-size:${size * 0.55}px">${glyph}</div>`;
+      } else {
+        el.className = 'faller bad';
+        const glyph = BAD_GLYPHS[Math.floor(Math.random() * BAD_GLYPHS.length)];
+        el.dataset.glyph = glyph;
+        el.innerHTML = `<div class="glyph" style="font-size:${size * 0.55}px">${glyph}</div>`;
+      }
+
+      stage.appendChild(el);
+
+      // Speed scales with score
+      const speedBoost = Math.min(state.score / 60, 4);
+      const baseSpeed = 180 + Math.random() * 140; // px/sec
+      const speed = baseSpeed + speedBoost * 50;
+      const wobble = (Math.random() - 0.5) * 60;
+
+      const faller = {
+        el,
+        x,
+        y: -120,
+        vx: wobble,
+        vy: speed,
+        w: size,
+        type,
+        rot: (Math.random() - 0.5) * 30,
+        rotSpeed: (Math.random() - 0.5) * 280,
+        points: type === 'good' ? 1 : (type === 'golden' ? 5 : 0)
+      };
+      state.fallers.push(faller);
+    }
+
+    // ---------- Game loop ----------
+    let lastFrame = 0;
+    function loop(ts) {
+      if (!state.running) { requestAnimationFrame(loop); return; }
+      if (!lastFrame) lastFrame = ts;
+      const dt = Math.min(0.05, (ts - lastFrame) / 1000);
+      lastFrame = ts;
+
+      // Bowl key movement
+      if (leftHeld) setBowlX(state.bowlX - 720 * dt);
+      if (rightHeld) setBowlX(state.bowlX + 720 * dt);
+
+      // Spawn
+      const spawnGap = Math.max(280, state.spawnGap - state.score * 4);
+      if (ts - state.lastSpawn > spawnGap) {
+        spawnFaller();
+        state.lastSpawn = ts;
+        // Occasional double-drop chaos
+        if (state.score > 30 && Math.random() < 0.18) {
+          setTimeout(() => { if (state.running) spawnFaller(); }, 110);
+        }
+      }
+
+      // Update fallers
+      const bowlRect = bowl.getBoundingClientRect();
+      const bowlCx = bowlRect.left + bowlRect.width / 2;
+      const bowlCy = bowlRect.top + bowlRect.height / 2;
+      const bowlR = bowlRect.width / 2;
+
+      for (let i = state.fallers.length - 1; i >= 0; i--) {
+        const f = state.fallers[i];
+        f.x += f.vx * dt;
+        f.y += f.vy * dt;
+        f.rot += f.rotSpeed * dt;
+        // Bounce off side walls a little
+        if (f.x < 0) { f.x = 0; f.vx = Math.abs(f.vx); }
+        if (f.x + f.w > window.innerWidth) { f.x = window.innerWidth - f.w; f.vx = -Math.abs(f.vx); }
+        f.el.style.transform = `translate3d(${f.x - parseFloat(f.el.style.left)}px, ${f.y + 120}px, 0) rotate(${f.rot}deg)`;
+
+        // Collision: circle-circle (approx)
+        const fx = f.x + f.w / 2;
+        const fy = f.y + f.w / 2;
+        const dx = fx - bowlCx;
+        const dy = fy - bowlCy;
+        const dist = Math.hypot(dx, dy);
+        if (dist < (bowlR + f.w / 2) * 0.85 && fy > 0) {
+          handleCatch(f, fx, fy);
+          f.el.remove();
+          state.fallers.splice(i, 1);
+          continue;
+        }
+
+        // Off-screen
+        if (f.y > window.innerHeight + 200) {
+          f.el.remove();
+          state.fallers.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+
+    // ---------- Catch handling ----------
+    function handleCatch(f, x, y) {
+      if (f.type === 'bad') {
+        state.lives -= 1;
+        screenShake(18);
+        showPopup(x, y, '-1 LIFE', 'bad');
+        flashRed();
+        const name = BAD_NAMES[f.el.dataset.glyph] || 'BAD!';
+        showCelebration(name + '!', '#ff1744');
+        if (state.lives <= 0) {
+          updateHud();
+          gameOver();
+          return;
+        }
+      } else {
+        const pts = f.points;
+        state.score += pts;
+        if (state.score > state.high) {
+          state.high = state.score;
+          localStorage.setItem('chombus-catch-high', String(state.high));
+        }
+        if (f.type === 'golden') {
+          showPopup(x, y, '+5!', 'golden');
+          confettiBurst(x, y, 14);
+          bowlPulse(1.35, '#ffd700');
+        } else {
+          showPopup(x, y, '+1', 'good');
+          bowlPulse(1.18, '#ff80ff');
+        }
+        checkMilestones();
+      }
+      updateHud();
+    }
+
+    function bowlPulse(scale, color) {
+      G.fromTo(bowl,
+        { scale: scale, rotation: -8 },
+        { scale: 1, rotation: 0, duration: 0.45, ease: 'back.out(2)' }
+      );
+      // Quick glow flash via box-shadow override
+      const orig = bowl.style.boxShadow;
+      bowl.style.boxShadow = `0 0 0 4px white, 0 0 80px ${color}, 0 0 160px ${color}, 0 12px 30px rgba(0,0,0,0.5)`;
+      setTimeout(() => { bowl.style.boxShadow = ''; }, 300);
+    }
+
+    function showPopup(x, y, text, kind) {
+      const el = document.createElement('div');
+      el.className = 'popup ' + kind;
+      el.textContent = text;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      stage.appendChild(el);
+      G.fromTo(el,
+        { scale: 0.4, opacity: 1, y: 0 },
+        {
+          scale: 1.4,
+          y: -120,
+          opacity: 0,
+          duration: 1.2,
+          ease: 'power2.out',
+          onComplete: () => el.remove()
+        }
+      );
+    }
+
+    function flashRed() {
+      const flash = document.createElement('div');
+      flash.style.cssText = 'position:fixed;inset:0;background:rgba(255,23,68,0.45);pointer-events:none;z-index:150;';
+      document.body.appendChild(flash);
+      G.fromTo(flash, { opacity: 1 }, { opacity: 0, duration: 0.5, onComplete: () => flash.remove() });
+    }
+
+    function screenShake(amount) {
+      const target = document.body;
+      let t = 0;
+      const dur = 320;
+      const start = performance.now();
+      function step(now) {
+        const e = now - start;
+        if (e > dur) { target.style.transform = ''; return; }
+        const decay = 1 - e / dur;
+        const dx = (Math.random() - 0.5) * amount * 2 * decay;
+        const dy = (Math.random() - 0.5) * amount * 2 * decay;
+        target.style.transform = `translate(${dx}px, ${dy}px)`;
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    function confettiBurst(x, y, count) {
+      for (let i = 0; i < count; i++) {
+        spawnConfetti(x + (Math.random() - 0.5) * 50, y + (Math.random() - 0.5) * 50);
+      }
+    }
+
+    function spawnConfetti(x, y) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      if (state.photos.length > 0) {
+        const src = state.photos[Math.floor(Math.random() * state.photos.length)];
+        el.innerHTML = `<img src="${src}" alt="">`;
+      } else {
+        el.innerHTML = '<div class="emoji">🐶</div>';
+      }
+      el.style.left = (x - 45) + 'px';
+      el.style.top = (y - 45) + 'px';
+      document.body.appendChild(el);
+      G.fromTo(el,
+        { scale: 0, rotation: 0, opacity: 1 },
+        {
+          scale: 0.7 + Math.random() * 0.7,
+          rotation: (Math.random() - 0.5) * 720,
+          x: (Math.random() - 0.5) * 500,
+          y: -150 - Math.random() * 250,
+          opacity: 0,
+          duration: 1.6 + Math.random() * 0.9,
+          ease: 'power1.out',
+          onComplete: () => el.remove()
+        }
+      );
+    }
+
+    // ---------- Milestones ----------
+    function checkMilestones() {
+      const messages = {
+        25: 'GOOD BOY!',
+        50: 'AMAZING!',
+        100: 'BEAN APPROVES!',
+        200: 'CHOMBUS LEGEND!',
+        300: 'IMMORTAL BEAN!',
+        500: 'PATRON SAINT!'
+      };
+      for (const k of Object.keys(messages)) {
+        const n = parseInt(k, 10);
+        if (state.score >= n && !state.milestones[n]) {
+          state.milestones[n] = true;
+          showCelebration(messages[k], pickColor());
+          confettiBurst(window.innerWidth / 2, window.innerHeight / 2, 22);
+        }
+      }
+    }
+    function pickColor() {
+      const cols = ['#ff1744', '#ff9100', '#ffea00', '#00e676', '#00b0ff', '#b388ff', '#ff4081'];
+      return cols[Math.floor(Math.random() * cols.length)];
+    }
+    function showCelebration(text, color) {
+      const el = document.getElementById('celebration');
+      el.textContent = text;
+      el.style.color = color;
+      G.fromTo(el,
+        { opacity: 0, scale: 0.3, rotation: -25 },
+        {
+          opacity: 1, scale: 1.2, rotation: 0, duration: 0.45, ease: 'back.out(2.5)',
+          onComplete: () => {
+            G.to(el, {
+              opacity: 0, scale: 1.6, rotation: 15,
+              duration: 0.7, delay: 0.65, ease: 'power2.in'
+            });
+          }
+        }
+      );
+    }
+
+    // ---------- Game flow ----------
+    function startCountdown() {
+      startOverlay.style.display = 'none';
+      gameoverOverlay.style.display = 'none';
+      countdownOverlay.style.display = 'flex';
+      let n = 3;
+      countdownNum.textContent = n;
+      G.fromTo(countdownNum, { scale: 0.4 }, { scale: 1, duration: 0.3 });
+      const tick = () => {
+        n--;
+        if (n > 0) {
+          countdownNum.textContent = n;
+          G.fromTo(countdownNum, { scale: 0.4, rotation: -20 }, { scale: 1, rotation: 0, duration: 0.3 });
+          setTimeout(tick, 800);
+        } else {
+          countdownNum.textContent = 'GO!';
+          G.fromTo(countdownNum, { scale: 0.4, rotation: -20 }, { scale: 1.3, rotation: 0, duration: 0.3 });
+          setTimeout(() => {
+            countdownOverlay.style.display = 'none';
+            beginRound();
+          }, 600);
+        }
+      };
+      setTimeout(tick, 800);
+    }
+
+    function beginRound() {
+      // Reset state for run
+      state.score = 0;
+      state.lives = 3;
+      state.fallers.forEach(f => f.el.remove());
+      state.fallers = [];
+      state.lastSpawn = performance.now();
+      state.spawnGap = 900;
+      Object.keys(state.milestones).forEach(k => state.milestones[k] = false);
+      lastFrame = 0;
+      updateHud();
+      state.running = true;
+      // Bowl reset position
+      setBowlX(window.innerWidth / 2);
+    }
+
+    function gameOver() {
+      state.running = false;
+      // Clear remaining fallers gracefully
+      state.fallers.forEach(f => {
+        G.to(f.el, { opacity: 0, scale: 0.4, duration: 0.4, onComplete: () => f.el.remove() });
+      });
+      state.fallers = [];
+
+      finalScoreEl.textContent = state.score;
+      finalHighEl.textContent = state.high;
+      // Tone (celebratory, silly)
+      const comments = [
+        'BEAN BELIEVES IN YOU.',
+        'BEAN IS NAPPING. TRY AGAIN.',
+        'YOU WERE SO CLOSE. (KIND OF)',
+        'CHOMBUS REQUIRES TRIBUTE.',
+        'BEAN SENDS HIS REGARDS.',
+        'PATRON SAINT IS UNIMPRESSED. JK BEAN LOVES YOU.',
+        'BEAN APPROVES OF YOUR EFFORT.',
+        'EVEN A LEGEND MUST REST.'
+      ];
+      if (state.score === state.high && state.score > 0) {
+        gameoverComment.textContent = 'NEW HIGH SCORE! BEAN IS PROUD.';
+      } else {
+        gameoverComment.textContent = comments[Math.floor(Math.random() * comments.length)];
+      }
+      gameoverOverlay.style.display = 'flex';
+      // Burst confetti for fun
+      for (let i = 0; i < 18; i++) {
+        spawnConfetti(window.innerWidth / 2 + (Math.random() - 0.5) * 200, window.innerHeight / 2 + (Math.random() - 0.5) * 200);
+      }
+    }
+
+    function startGame() {
+      startCountdown();
+    }
+
+    document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('play-again-btn').addEventListener('click', startGame);
+
+    // ---------- Cursor + sparkles ----------
+    const cursor = document.getElementById('cursor');
+    let lastTrailAt = 0;
+    const trailGlyphs = ['✨', '⭐', '🌟', '💫', '⚡'];
+
+    function spawnTrail(x, y) {
+      const el = document.createElement('div');
+      el.className = 'cursor-trail';
+      el.textContent = trailGlyphs[Math.floor(Math.random() * trailGlyphs.length)];
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.fontSize = (0.7 + Math.random() * 0.7) + 'rem';
+      document.body.appendChild(el);
+      G.fromTo(el,
+        { scale: 0.4, opacity: 1, rotation: 0 },
+        {
+          scale: 1.4,
+          x: (Math.random() - 0.5) * 70,
+          y: 25 + Math.random() * 50,
+          rotation: (Math.random() - 0.5) * 540,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power2.out',
+          onComplete: () => el.remove()
+        }
+      );
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      if (cursor) {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+      }
+      const now = performance.now();
+      if (now - lastTrailAt > 36) {
+        spawnTrail(e.clientX, e.clientY);
+        lastTrailAt = now;
+      }
+    });
+
+    function spawnSparkle() {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      const glyphs = ['✨', '⭐', '🌟', '💫', '⚡', '🔆'];
+      el.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = Math.random() * 100 + 'vh';
+      el.style.fontSize = (0.9 + Math.random() * 1.4) + 'rem';
+      document.getElementById('sparkles').appendChild(el);
+      G.fromTo(el,
+        { scale: 0, rotation: 0, opacity: 0 },
+        {
+          scale: 1, rotation: 360, opacity: 1, duration: 0.5,
+          onComplete: () => G.to(el, { opacity: 0, scale: 0, duration: 0.6, onComplete: () => el.remove() })
+        }
+      );
+    }
+    setInterval(spawnSparkle, 240);
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      state.bowlW = bowl.offsetWidth;
+      setBowlX(state.bowlX);
+    });
+
+    // ---------- Boot ----------
+    (async () => {
+      await loadManifest();
+      setupBowl();
+      updateHud();
+      // Wait a beat for bowl layout, then center it
+      requestAnimationFrame(() => {
+        state.bowlW = bowl.offsetWidth;
+        setBowlX(window.innerWidth / 2);
+      });
+    })();
+  </script>
+</body>
+</html>

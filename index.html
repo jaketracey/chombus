@@ -420,10 +420,337 @@
       font-size: 0.85em;
     }
 
+    .arcade-btn {
+      display: inline-block;
+      margin-top: 0.4rem;
+      padding: 0.85rem 1.6rem;
+      background: linear-gradient(45deg, #ff006e, #ffd700, #00bfff, #ff006e);
+      background-size: 300% 300%;
+      animation: arcadeShift 4s ease infinite, arcadeWiggle 2.6s ease-in-out infinite;
+      color: white;
+      text-decoration: none;
+      font-family: inherit;
+      font-weight: 900;
+      font-size: clamp(0.95rem, 2.4vw, 1.35rem);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      border: 4px solid white;
+      border-radius: 999px;
+      box-shadow:
+        0 0 0 4px gold,
+        0 14px 38px rgba(0,0,0,0.5),
+        0 0 60px rgba(255,215,0,0.55);
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.55);
+      transform-style: preserve-3d;
+      transition: transform 0.18s, box-shadow 0.18s;
+      position: relative;
+      z-index: 5;
+    }
+    .arcade-btn:hover {
+      transform: scale(1.08) rotate(-2deg);
+      box-shadow:
+        0 0 0 4px gold,
+        0 18px 50px rgba(0,0,0,0.6),
+        0 0 120px rgba(255,215,0,0.95);
+    }
+    .arcade-btn:active { transform: scale(0.96) rotate(2deg); }
+    @keyframes arcadeShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes arcadeWiggle {
+      0%, 100% { transform: rotate(-2deg); }
+      50% { transform: rotate(2deg); }
+    }
+
+    /* Volume control */
+    #volume-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 0 0 auto;
+    }
+    #volume-btn {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid white;
+      color: white;
+      width: 48px; height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    #volume-btn:hover {
+      background: gold;
+      color: black;
+      transform: scale(1.1);
+    }
+    #volume-btn:active { transform: scale(0.92); }
+    #volume-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 110px;
+      height: 6px;
+      background: linear-gradient(90deg, gold 0%, gold var(--vol, 100%), rgba(255,255,255,0.25) var(--vol, 100%), rgba(255,255,255,0.25) 100%);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    #volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid gold;
+      box-shadow: 0 0 10px rgba(255,215,0,0.8);
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    #volume-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    #volume-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid gold;
+      box-shadow: 0 0 10px rgba(255,215,0,0.8);
+      cursor: pointer;
+    }
+    /* Mobile: hide slider, button toggles a popover */
+    #volume-popover {
+      position: fixed;
+      bottom: 80px; right: 12px;
+      background: rgba(0,0,0,0.92);
+      border: 3px solid gold;
+      border-radius: 18px;
+      padding: 1rem 0.6rem;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 80;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    #volume-popover.open { display: flex; }
+    #volume-popover input[type=range] {
+      -webkit-appearance: slider-vertical;
+      writing-mode: vertical-lr;
+      direction: rtl;
+      width: 30px;
+      height: 140px;
+      background: linear-gradient(0deg, gold 0%, gold var(--vol, 100%), rgba(255,255,255,0.25) var(--vol, 100%), rgba(255,255,255,0.25) 100%);
+      border-radius: 999px;
+      outline: none;
+      cursor: pointer;
+    }
+    #volume-popover input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid gold;
+      box-shadow: 0 0 10px rgba(255,215,0,0.8);
+    }
+    #volume-popover-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: gold;
+      text-shadow: 1px 1px 0 black;
+    }
+    @media (max-width: 720px) {
+      #volume-slider { display: none; }
+    }
+    @media (min-width: 721px) {
+      #volume-popover { display: none !important; }
+    }
+
+    /* Arcade in-app overlay (keeps music playing) */
+    #arcade-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      bottom: 80px; /* leave music player visible */
+      background: rgba(0,0,0,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+    }
+    #arcade-overlay.open { display: flex; }
+    /* When playing, hide parent's custom cursor (iframe has its own) */
+    body:has(#arcade-overlay.open.playing) .cursor-dot { display: none; }
+    body:has(#arcade-overlay.open.playing) .cursor-trail { display: none; }
+
+    #arcade-header {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.6rem 1rem;
+      background: rgba(0,0,0,0.55);
+      border-bottom: 4px solid gold;
+    }
+    #arcade-header .arcade-h-title {
+      flex: 1;
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      color: gold;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+      font-size: clamp(0.85rem, 2vw, 1.15rem);
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .arcade-ctrl {
+      background: rgba(0,0,0,0.5);
+      border: 3px solid gold;
+      color: gold;
+      font-family: inherit;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-shadow: 1px 1px 0 black;
+      transition: transform 0.18s, background 0.18s, color 0.18s;
+      flex: 0 0 auto;
+    }
+    .arcade-ctrl:hover {
+      background: gold;
+      color: black;
+      transform: scale(1.06) rotate(-2deg);
+    }
+    #arcade-menu-btn { display: none; }
+    #arcade-overlay.playing #arcade-menu-btn { display: inline-block; }
+
+    #arcade-iframe {
+      flex: 1 1 auto;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      display: none;
+    }
+    #arcade-overlay.playing #arcade-iframe { display: block; }
+    #arcade-overlay.playing #arcade-menu-view { display: none; }
+
+    #arcade-menu-view {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 2rem 1.5rem 2.5rem;
+    }
+    .arcade-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.4rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .arcade-card {
+      position: relative;
+      background: rgba(0,0,0,0.55);
+      border: 5px solid white;
+      border-radius: 24px;
+      padding: 1.4rem 1.2rem 1.6rem;
+      text-align: center;
+      cursor: pointer;
+      font-family: inherit;
+      color: white;
+      box-shadow:
+        0 0 0 5px gold,
+        0 18px 40px rgba(0,0,0,0.45),
+        0 0 60px rgba(255,215,0,0.25);
+      transition: transform 0.3s, box-shadow 0.3s;
+      overflow: hidden;
+    }
+    .arcade-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,255,255,0.16), transparent 60%);
+      pointer-events: none;
+      border-radius: 24px;
+    }
+    .arcade-card:hover {
+      transform: translateY(-8px) rotate(-2deg) scale(1.04);
+      box-shadow:
+        0 0 0 5px gold,
+        0 30px 70px rgba(0,0,0,0.55),
+        0 0 120px rgba(255,215,0,0.6);
+    }
+    .arcade-card:nth-child(2n):hover { transform: translateY(-8px) rotate(2deg) scale(1.04); }
+    .arcade-card-emoji {
+      font-size: clamp(3rem, 7vw, 4.6rem);
+      display: block;
+      margin: 0.2rem 0 0.5rem;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,0.5));
+      animation: cardWiggle 3.5s ease-in-out infinite;
+    }
+    .arcade-card:nth-child(2) .arcade-card-emoji { animation-delay: 0.4s; }
+    .arcade-card:nth-child(3) .arcade-card-emoji { animation-delay: 0.8s; }
+    .arcade-card:nth-child(4) .arcade-card-emoji { animation-delay: 1.2s; }
+    .arcade-card:nth-child(5) .arcade-card-emoji { animation-delay: 1.6s; }
+    @keyframes cardWiggle {
+      0%, 100% { transform: rotate(-6deg) scale(1); }
+      50% { transform: rotate(6deg) scale(1.08); }
+    }
+    .arcade-card-title {
+      font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      margin: 0 0 0.5rem;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    }
+    .arcade-card-title span { display: inline-block; }
+    .arcade-card-title span:nth-child(7n+1) { color: #ff1744; }
+    .arcade-card-title span:nth-child(7n+2) { color: #ff9100; }
+    .arcade-card-title span:nth-child(7n+3) { color: #ffea00; }
+    .arcade-card-title span:nth-child(7n+4) { color: #00e676; }
+    .arcade-card-title span:nth-child(7n+5) { color: #00b0ff; }
+    .arcade-card-title span:nth-child(7n+6) { color: #b388ff; }
+    .arcade-card-title span:nth-child(7n+7) { color: #ff4081; }
+    .arcade-card-desc {
+      font-size: 0.92rem;
+      line-height: 1.45;
+      opacity: 0.95;
+      margin: 0 0 0.9rem;
+      min-height: 3em;
+    }
+    .arcade-card-cta {
+      display: inline-block;
+      padding: 0.5rem 1.2rem;
+      background: gold;
+      color: black;
+      border: 3px solid white;
+      border-radius: 999px;
+      font-weight: 900;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+    }
+
     @media (max-width: 600px) {
       #player { gap: 0.4rem; padding: 0.7rem; }
       #player button { width: 42px; height: 42px; min-width: 42px; font-size: 1.1rem; }
       .shrine { padding-bottom: 6rem; gap: 1rem; }
+      .arcade-btn { padding: 0.7rem 1.2rem; }
+      #arcade-overlay { bottom: 72px; }
+      #arcade-menu-view { padding: 1.4rem 1rem 2rem; }
     }
   </style>
 </head>
@@ -447,9 +774,33 @@
       <div class="placeholder">🐶</div>
     </div>
     <div id="subtitle">Patron Saint of Chombus · Eternal Good Boy</div>
+    <a href="games/" class="arcade-btn" id="arcade-btn">🎮 Enter Bean's Arcade 🎮</a>
   </main>
 
   <div class="hint" id="hint">click anywhere</div>
+
+  <div id="arcade-overlay" aria-hidden="true">
+    <div id="arcade-header">
+      <button id="arcade-menu-btn" class="arcade-ctrl" type="button">← MENU</button>
+      <div class="arcade-h-title">🎮 BEAN'S ARCADE 🎮</div>
+      <button id="arcade-close-btn" class="arcade-ctrl" type="button">✕ CLOSE</button>
+    </div>
+    <div id="arcade-menu-view">
+      <div class="arcade-grid" id="arcade-grid">
+        <button class="arcade-card" type="button" data-game="catch.html" data-emoji="🥩" data-title="BEAN CATCH" data-desc="Treats fall from the sky. Catch the beans, dodge the broccoli. Bean believes in you."></button>
+        <button class="arcade-card" type="button" data-game="whack.html" data-emoji="🐶" data-title="PET-A-BEAN" data-desc="Bean pops from holes. PET HIM. Do not whack. Combo your way to chombus glory."></button>
+        <button class="arcade-card" type="button" data-game="memory.html" data-emoji="🧠" data-title="BEAN MEMORY" data-desc="Match Bean's many faces. Three difficulties for varying levels of bean overload."></button>
+        <button class="arcade-card" type="button" data-game="runner.html" data-emoji="🏃" data-title="BEAN RUNNER" data-desc="Bean runs forever. Jump vacuums. Dodge baths. Eat snacks. Become legend."></button>
+        <button class="arcade-card" type="button" data-game="clicker.html" data-emoji="✨" data-title="BEAN CLICKER" data-desc="Click Bean. Get BEANS. Buy upgrades. Achieve eternal chombus. Saves your progress."></button>
+      </div>
+    </div>
+    <iframe id="arcade-iframe" title="Bean game" allow="autoplay" loading="lazy"></iframe>
+  </div>
+
+  <div id="volume-popover" aria-hidden="true">
+    <span id="volume-popover-label">Volume</span>
+    <input id="volume-slider-mobile" type="range" min="0" max="100" value="100" aria-label="Volume">
+  </div>
 
   <div id="player">
     <button id="prev" title="Previous (←)">⏮</button>
@@ -459,6 +810,10 @@
     <div class="now-playing">
       <div class="label">now playing</div>
       <div id="song-title">— add MP3s to /audio —</div>
+    </div>
+    <div id="volume-wrap" title="Volume">
+      <button id="volume-btn" type="button" aria-label="Mute">🔊</button>
+      <input id="volume-slider" type="range" min="0" max="100" value="100" aria-label="Volume">
     </div>
     <audio id="audio" preload="auto" muted></audio>
   </div>
@@ -658,6 +1013,7 @@
     let hintHidden = false;
     function handleClick(e) {
       if (e.target.closest('#player') || e.target.closest('#portrait')) return;
+      if (e.target.closest('#arcade-overlay') || e.target.closest('#volume-popover')) return;
       const x = e.clientX ?? (e.touches && e.touches[0]?.clientX);
       const y = e.clientY ?? (e.touches && e.touches[0]?.clientY);
       if (x == null || y == null) return;
@@ -836,11 +1192,12 @@
       audio.play().then(() => {
         state.isPlaying = true;
         playBtn.textContent = '⏸';
-        // Unmute + fade in on first interaction
+        // Unmute + fade in on first interaction (to user's saved volume)
         const unmute = () => {
           if (!audio.muted) return;
           audio.muted = false;
-          gsap.to(audio, { volume: 1, duration: 1.4, ease: 'power1.out' });
+          const target = (state.userMuted ? 0 : (state.userVolume ?? 1));
+          gsap.to(audio, { volume: target, duration: 1.4, ease: 'power1.out' });
         };
         ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll']
           .forEach(evt => document.addEventListener(evt, unmute, { once: true, passive: true }));
@@ -848,6 +1205,183 @@
         // Even muted autoplay blocked — leave it for manual play
       });
     }
+
+    // === Volume control (desktop slider + mobile popover) ===
+    const volumeBtn = document.getElementById('volume-btn');
+    const volumeSlider = document.getElementById('volume-slider');
+    const volumeSliderMobile = document.getElementById('volume-slider-mobile');
+    const volumePopover = document.getElementById('volume-popover');
+    const VOL_KEY = 'chombus-volume';
+    const MUTE_KEY = 'chombus-muted';
+
+    function loadVolumePrefs() {
+      const v = parseFloat(localStorage.getItem(VOL_KEY));
+      state.userVolume = Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 1;
+      state.userMuted = localStorage.getItem(MUTE_KEY) === '1';
+      const pct = Math.round(state.userVolume * 100);
+      volumeSlider.value = pct;
+      volumeSliderMobile.value = pct;
+      updateVolumeUI();
+    }
+
+    function updateVolumeUI() {
+      const pct = Math.round((state.userVolume ?? 1) * 100);
+      volumeSlider.style.setProperty('--vol', pct + '%');
+      volumeSliderMobile.style.setProperty('--vol', pct + '%');
+      // icon by level
+      let icon = '🔊';
+      if (state.userMuted || state.userVolume === 0) icon = '🔇';
+      else if (state.userVolume < 0.34) icon = '🔈';
+      else if (state.userVolume < 0.67) icon = '🔉';
+      volumeBtn.textContent = icon;
+      volumeBtn.setAttribute('aria-label', state.userMuted ? 'Unmute' : 'Mute');
+    }
+
+    function applyVolume() {
+      // Don't fight the autoplay fade-in: only apply once unmuted by user interaction
+      if (audio.muted) return;
+      audio.volume = state.userMuted ? 0 : state.userVolume;
+    }
+
+    function setVolume(pct, persist = true) {
+      state.userVolume = Math.min(1, Math.max(0, pct / 100));
+      if (state.userVolume > 0) state.userMuted = false;
+      if (persist) {
+        localStorage.setItem(VOL_KEY, String(state.userVolume));
+        localStorage.setItem(MUTE_KEY, state.userMuted ? '1' : '0');
+      }
+      volumeSlider.value = Math.round(state.userVolume * 100);
+      volumeSliderMobile.value = volumeSlider.value;
+      updateVolumeUI();
+      applyVolume();
+    }
+
+    function toggleMute() {
+      state.userMuted = !state.userMuted;
+      localStorage.setItem(MUTE_KEY, state.userMuted ? '1' : '0');
+      // Bumps a 0-volume back to a hearable level on unmute
+      if (!state.userMuted && state.userVolume === 0) {
+        state.userVolume = 0.6;
+        localStorage.setItem(VOL_KEY, String(state.userVolume));
+        volumeSlider.value = 60;
+        volumeSliderMobile.value = 60;
+      }
+      updateVolumeUI();
+      applyVolume();
+    }
+
+    volumeSlider.addEventListener('input', (e) => setVolume(parseInt(e.target.value, 10)));
+    volumeSliderMobile.addEventListener('input', (e) => setVolume(parseInt(e.target.value, 10)));
+    volumeBtn.addEventListener('click', (e) => {
+      // On mobile (<=720px), button toggles popover unless it's a quick double-tap mute
+      const isMobile = window.matchMedia('(max-width: 720px)').matches;
+      if (isMobile) {
+        e.stopPropagation();
+        volumePopover.classList.toggle('open');
+      } else {
+        toggleMute();
+      }
+    });
+    // Long-press mute on mobile
+    let pressTimer = null;
+    volumeBtn.addEventListener('pointerdown', () => {
+      if (!window.matchMedia('(max-width: 720px)').matches) return;
+      pressTimer = setTimeout(() => {
+        pressTimer = null;
+        volumePopover.classList.remove('open');
+        toggleMute();
+      }, 600);
+    });
+    volumeBtn.addEventListener('pointerup', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
+    volumeBtn.addEventListener('pointerleave', () => { if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; } });
+    document.addEventListener('click', (e) => {
+      if (!volumePopover.classList.contains('open')) return;
+      if (e.target.closest('#volume-popover') || e.target.closest('#volume-btn')) return;
+      volumePopover.classList.remove('open');
+    });
+
+    loadVolumePrefs();
+
+    // === Arcade overlay ===
+    const arcadeOverlay = document.getElementById('arcade-overlay');
+    const arcadeBtn = document.getElementById('arcade-btn');
+    const arcadeIframe = document.getElementById('arcade-iframe');
+    const arcadeCloseBtn = document.getElementById('arcade-close-btn');
+    const arcadeMenuBtn = document.getElementById('arcade-menu-btn');
+    const arcadeHeaderTitle = document.querySelector('#arcade-header .arcade-h-title');
+
+    // Render rainbow letter spans for card titles
+    document.querySelectorAll('.arcade-card').forEach(card => {
+      const emoji = card.dataset.emoji;
+      const title = card.dataset.title;
+      const desc = card.dataset.desc;
+      const titleSpans = [...title].map(c =>
+        c === ' ' ? '<span>&nbsp;</span>' : `<span>${c}</span>`
+      ).join('');
+      card.innerHTML = `
+        <span class="arcade-card-emoji">${emoji}</span>
+        <div class="arcade-card-title">${titleSpans}</div>
+        <p class="arcade-card-desc">${desc}</p>
+        <span class="arcade-card-cta">PLAY ▶</span>
+      `;
+    });
+
+    function openArcade() {
+      arcadeOverlay.classList.add('open');
+      arcadeOverlay.classList.remove('playing');
+      arcadeOverlay.setAttribute('aria-hidden', 'false');
+      arcadeHeaderTitle.textContent = "🎮 BEAN'S ARCADE 🎮";
+    }
+    function closeArcade() {
+      arcadeOverlay.classList.remove('open', 'playing');
+      arcadeOverlay.setAttribute('aria-hidden', 'true');
+      arcadeIframe.src = 'about:blank';
+    }
+    function backToArcadeMenu() {
+      arcadeOverlay.classList.remove('playing');
+      arcadeIframe.src = 'about:blank';
+      arcadeHeaderTitle.textContent = "🎮 BEAN'S ARCADE 🎮";
+    }
+    function loadArcadeGame(card) {
+      const game = card.dataset.game;
+      const title = card.dataset.title;
+      arcadeIframe.src = 'games/' + game;
+      arcadeOverlay.classList.add('playing');
+      arcadeHeaderTitle.textContent = title;
+    }
+
+    arcadeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openArcade();
+    });
+    arcadeCloseBtn.addEventListener('click', closeArcade);
+    arcadeMenuBtn.addEventListener('click', backToArcadeMenu);
+    document.querySelectorAll('.arcade-card').forEach(card => {
+      card.addEventListener('click', () => loadArcadeGame(card));
+    });
+    document.addEventListener('keydown', (e) => {
+      if (!arcadeOverlay.classList.contains('open')) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (arcadeOverlay.classList.contains('playing')) backToArcadeMenu();
+        else closeArcade();
+      }
+    });
+
+    // Rewire the in-iframe "← chombus" back-link to return to the arcade menu
+    // (so we don't reload the whole page and kill the music)
+    arcadeIframe.addEventListener('load', () => {
+      try {
+        const doc = arcadeIframe.contentDocument;
+        if (!doc) return;
+        doc.querySelectorAll('a').forEach(a => {
+          const href = a.getAttribute('href') || '';
+          if (href === '../' || href === '../index.html' || href === '../#') {
+            a.addEventListener('click', (ev) => { ev.preventDefault(); backToArcadeMenu(); });
+          }
+        });
+      } catch (e) { /* same-origin so this should never throw */ }
+    });
 
     (async () => {
       await loadManifest();

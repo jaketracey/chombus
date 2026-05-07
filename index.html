@@ -46,13 +46,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: 1.5rem;
-      padding: 1rem;
-      padding-bottom: 7rem;
+      justify-content: space-between;
+      padding: 3.4rem 1rem 7rem;
     }
 
     #title {
+      position: relative;
+      z-index: 10;
       font-size: clamp(2.6rem, 11vw, 9.5rem);
       font-weight: 900;
       margin: 0;
@@ -82,68 +82,106 @@
       50% { transform: translateY(-25px) rotate(4deg) scale(1.1); }
     }
 
-    #portrait {
-      position: relative;
-      width: clamp(200px, 30vw, 380px);
-      aspect-ratio: 1;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 8px solid white;
-      box-shadow: 0 0 0 4px gold, 0 0 60px rgba(255,215,0,0.6), 0 20px 60px rgba(0,0,0,0.5);
-      animation: holyGlow 4s ease-in-out infinite, globeWobble 7s ease-in-out infinite;
+    /* Bean cast card — TV-show-intro vibes, star-shaped frame, fills the viewport.
+       Absolutely positioned so the title (#title z:10) and arcade button (z:10) overlay on top. */
+    #bean-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 5;
+      width: min(82vh, 92vw);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.6rem;
       cursor: pointer;
+      animation: cardWobble 6.5s ease-in-out infinite;
+    }
+    /* Keep translate centered while wobble-rotating */
+    @keyframes cardWobble {
+      0%, 100% { transform: translate(-50%, -50%) rotate(-1.2deg); }
+      50%      { transform: translate(-50%, -50%) rotate(1.2deg); }
+    }
+    #bean-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: transparent;
+      /* Chunky 5-point star with inner radius ~65% so the bean photo is clearly visible. */
+      clip-path: polygon(50% 0%, 69% 24%, 98% 35%, 81% 60%, 79% 90%, 50% 83%, 21% 90%, 19% 60%, 2% 35%, 31% 24%);
+      /* Stacked zero-blur drop-shadows fake the white outline that follows the star clip;
+         the bass-pulsing gold drop-shadow gives the holy-glow halo. */
+      filter:
+        drop-shadow(3px 0 0 #fff)
+        drop-shadow(-3px 0 0 #fff)
+        drop-shadow(0 3px 0 #fff)
+        drop-shadow(0 -3px 0 #fff)
+        drop-shadow(0 0 calc(6px + var(--bass, 0) * 60px) rgba(255,215,0, 0.92))
+        drop-shadow(0 14px 24px rgba(0,0,0,0.55));
+    }
+    .bean-photo {
+      position: absolute;
+      inset: 0;
       background-color: white;
-      background-size: 220% 100%;
-      background-repeat: repeat-x;
-      background-position: 0% center;
-      transform-style: preserve-3d;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0;
+      transform: scale(1.04);
+      transition: opacity 0.7s ease, transform 4s linear;
+      z-index: 1;
     }
-    #portrait.spinning {
-      animation: holyGlow 4s ease-in-out infinite, globeSpin 9s linear infinite, globeWobble 7s ease-in-out infinite;
-    }
-    #portrait::before {
-      content: '';
+    .bean-photo.show { opacity: 1; }
+    .bean-photo.kenburns { transform: scale(1.18); }
+    .bean-frame-shine {
       position: absolute;
       inset: 0;
-      border-radius: 50%;
-      background:
-        radial-gradient(ellipse 80% 60% at 28% 24%, rgba(255,255,255,0.55), transparent 55%),
-        radial-gradient(circle at 75% 80%, rgba(0,0,0,0.55), transparent 55%);
       pointer-events: none;
-      mix-blend-mode: overlay;
       z-index: 2;
+      background:
+        radial-gradient(ellipse 90% 50% at 50% 0%, rgba(255,255,255,0.22), transparent 60%),
+        radial-gradient(ellipse 60% 40% at 100% 100%, rgba(0,0,0,0.18), transparent 60%);
     }
-    #portrait::after {
-      content: '';
+    .bean-frame-placeholder {
       position: absolute;
       inset: 0;
-      border-radius: 50%;
-      background:
-        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.25), transparent 40%);
-      pointer-events: none;
-      z-index: 3;
-    }
-    #portrait .placeholder {
-      width: 100%; height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 8rem;
-      background: white;
+      font-size: 7rem;
+      z-index: 0;
+    }
+    #bean-name {
       position: relative;
-      z-index: 1;
+      flex: 0 0 auto;
+      padding: 0.55rem 1.4rem;
+      background: rgba(0,0,0,0.78);
+      border: 3px solid gold;
+      border-radius: 999px;
+      font-size: clamp(0.95rem, 2.2vw, 1.5rem);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: gold;
+      text-shadow: 2px 2px 0 black, 0 0 18px rgba(255,215,0,0.6);
+      text-align: center;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.45), 0 0 30px rgba(255,215,0,0.35);
+      transform-origin: center;
+    }
+    #bean-name.flip {
+      animation: nameFlip 0.55s ease;
+    }
+    @keyframes nameFlip {
+      0%   { transform: scale(0.6) rotate(-8deg); opacity: 0; }
+      55%  { transform: scale(1.18) rotate(3deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
     }
     @keyframes holyGlow {
       0%, 100% { box-shadow: 0 0 0 4px gold, 0 0 50px rgba(255,215,0,0.6), 0 20px 60px rgba(0,0,0,0.5); }
       50% { box-shadow: 0 0 0 4px gold, 0 0 120px rgba(255,215,0,1), 0 0 200px rgba(255,215,0,0.4), 0 20px 60px rgba(0,0,0,0.5); }
-    }
-    @keyframes globeSpin {
-      from { background-position: 0% center; }
-      to { background-position: 200% center; }
-    }
-    @keyframes globeWobble {
-      0%, 100% { transform: rotate(-3deg); }
-      50% { transform: rotate(3deg); }
     }
 
     #subtitle {
@@ -165,12 +203,39 @@
     }
     .floater {
       position: absolute;
-      border-radius: 50%;
       overflow: hidden;
       border: 3px solid white;
       box-shadow: 0 5px 18px rgba(0,0,0,0.4);
       will-change: transform;
       transform-style: preserve-3d;
+      background: white;
+    }
+    /* Border-radius shape variants */
+    .floater.shape-circle    { border-radius: 50%; }
+    .floater.shape-squircle  { border-radius: 32%; }
+    .floater.shape-rounded   { border-radius: 14%; }
+    .floater.shape-blob      { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+    /* Clip-path shapes — drop the rectangular border/box-shadow,
+       fake the white outline with stacked zero-blur drop-shadows that follow the clip. */
+    .floater.shape-star,
+    .floater.shape-hex,
+    .floater.shape-diamond {
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      filter:
+        drop-shadow(2px 0 0 #fff)
+        drop-shadow(-2px 0 0 #fff)
+        drop-shadow(0 2px 0 #fff)
+        drop-shadow(0 -2px 0 #fff)
+        drop-shadow(0 6px 14px rgba(0,0,0,0.55));
+    }
+    .floater.shape-star    { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+    .floater.shape-hex     { clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%); }
+    .floater.shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+    .shrine {
+      transform-style: preserve-3d;
+      will-change: transform;
     }
     .shrine {
       transform-style: preserve-3d;
@@ -347,6 +412,18 @@
       z-index: 4;
     }
 
+    /* Frequency visualiser canvas — soft halo of color */
+    #viz {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 2;
+      filter: blur(14px);
+      opacity: 0.5;
+    }
+
     @media (hover: hover) {
       html, body, * { cursor: none !important; }
     }
@@ -444,7 +521,7 @@
       transform-style: preserve-3d;
       transition: transform 0.18s, box-shadow 0.18s;
       position: relative;
-      z-index: 5;
+      z-index: 10;
     }
     .arcade-btn:hover {
       transform: scale(1.08) rotate(-2deg);
@@ -763,6 +840,7 @@
   </div>
 
   <div id="floaters"></div>
+  <canvas id="viz" aria-hidden="true"></canvas>
   <div id="sparkles"></div>
   <div class="cursor-dot" id="cursor">⭐</div>
 
@@ -770,10 +848,15 @@
     <h1 id="title">
       <span>C</span><span>H</span><span>O</span><span>M</span><span>B</span><span>U</span><span>S</span>
     </h1>
-    <div id="portrait" title="bean">
-      <div class="placeholder">🐶</div>
+    <div id="bean-card" title="bean">
+      <div id="bean-frame">
+        <div class="bean-photo" id="bean-photo-a"></div>
+        <div class="bean-photo" id="bean-photo-b"></div>
+        <div class="bean-frame-placeholder">🐶</div>
+        <div class="bean-frame-shine"></div>
+      </div>
+      <div id="bean-name">BEAN</div>
     </div>
-    <div id="subtitle">Patron Saint of Chombus · Eternal Good Boy</div>
     <a href="games/" class="arcade-btn" id="arcade-btn">🎮 Enter Bean's Arcade 🎮</a>
   </main>
 
@@ -792,6 +875,7 @@
         <button class="arcade-card" type="button" data-game="memory.html" data-emoji="🧠" data-title="BEAN MEMORY" data-desc="Match Bean's many faces. Three difficulties for varying levels of bean overload."></button>
         <button class="arcade-card" type="button" data-game="runner.html" data-emoji="🏃" data-title="BEAN RUNNER" data-desc="Bean runs forever. Jump vacuums. Dodge baths. Eat snacks. Become legend."></button>
         <button class="arcade-card" type="button" data-game="clicker.html" data-emoji="✨" data-title="BEAN CLICKER" data-desc="Click Bean. Get BEANS. Buy upgrades. Achieve eternal chombus. Saves your progress."></button>
+        <button class="arcade-card" type="button" data-game="snake.html" data-emoji="🐍" data-title="BEAN SNAKE" data-desc="Eat treats. Grow the bean. Don't eat yourself. Golden ⭐ for combos. The classic, beanified."></button>
       </div>
     </div>
     <iframe id="arcade-iframe" title="Bean game" allow="autoplay" loading="lazy"></iframe>
@@ -846,18 +930,122 @@
       }
     }
 
-    function setupPortrait() {
-      const portrait = document.getElementById('portrait');
-      if (state.photos.length === 0) return;
-      portrait.innerHTML = '';
-      portrait.classList.add('spinning');
-      portrait.style.backgroundImage = `url('${state.photos[0]}')`;
-      let idx = 0;
+    const beanNames = [
+      'BEAN, ESQ.',
+      'MR. CHOMBUS',
+      'BEAN-OS THE GREAT',
+      'SIR REGINALD BEANFORD III',
+      'BEAN, P.I.',
+      'BEANIFER LOPEZ',
+      'ARCHBISHOP BEAN',
+      'BEAN — BUT TIRED',
+      'BEAN, OF THE HOUSE BEAN',
+      'BEAN PLATTER',
+      'DR. BEAN, PHD',
+      'BEAN-O-RAMA',
+      'CAPTAIN BEAN',
+      'BEAN VAN WINKLE',
+      'BEAN STALK',
+      'FAMOUS AMOS, B.B.',
+      'BEANNETTE',
+      'BEAN-ANA SPLIT',
+      'JOHN "BEAN" SMITH',
+      'BEAN FROM ACCOUNTING',
+      'DJ BEANSPRINKLES',
+      'AGENT BEAN',
+      'BEAN, AGE INDETERMINATE',
+      'SLEEPY BEAN, ESQ.',
+      'BEAN — UNRATED',
+      'BEAN: THE LEGEND',
+      'BEAN AKA BIG B',
+      'KING BEAN VII',
+      'BEAN OF THE CHOMBUS',
+      'PROFESSOR BEAN',
+      'BEAN, INTERNATIONAL MAN',
+      'BEAN-ATHAN',
+      'GRAND DUKE BEAN',
+      'CHEF BEAN',
+      'BEAN, AS HIMSELF',
+      'BEAN — STILL HUNGRY',
+      'BEANIE BABY (THE ORIGINAL)',
+      'BEAN, B.A. (HONS)',
+      'LIEUTENANT BEAN',
+      'BEAN HOLIDAY',
+      'BEAN-INO',
+      'NIGHT BEAN',
+      'BEAN, IN HIS PRIME',
+      'PASTOR BEAN',
+      'BEAN MARLEY',
+      'BEAN — RUNNING LATE',
+      'TINY BEAN',
+      'BEAN OF THE WEEK'
+    ];
+
+    function setupBeanCard() {
+      const a = document.getElementById('bean-photo-a');
+      const b = document.getElementById('bean-photo-b');
+      const nameEl = document.getElementById('bean-name');
+      const placeholder = document.querySelector('.bean-frame-placeholder');
+      if (state.photos.length === 0) {
+        nameEl.textContent = 'BEAN';
+        return;
+      }
+      placeholder.style.display = 'none';
+      let idx = Math.floor(Math.random() * state.photos.length);
+      let lastNameIdx = -1;
+      let layerToggle = 0; // 0 = a is foreground, 1 = b
+      const layers = [a, b];
+
+      function pickName() {
+        let n;
+        do { n = Math.floor(Math.random() * beanNames.length); }
+        while (n === lastNameIdx && beanNames.length > 1);
+        lastNameIdx = n;
+        return beanNames[n];
+      }
+
+      function showCurrent() {
+        const top = layers[layerToggle];
+        const back = layers[1 - layerToggle];
+        top.style.backgroundImage = `url('${state.photos[idx]}')`;
+        // small delay for image decode then reveal
+        requestAnimationFrame(() => {
+          top.classList.add('show');
+          // Trigger ken-burns slow zoom on the photo
+          requestAnimationFrame(() => top.classList.add('kenburns'));
+        });
+        // Refresh name
+        nameEl.textContent = pickName();
+        nameEl.classList.remove('flip');
+        // Force reflow to restart the animation
+        void nameEl.offsetWidth;
+        nameEl.classList.add('flip');
+        // Hide back layer after the fade
+        setTimeout(() => {
+          back.classList.remove('show', 'kenburns');
+        }, 750);
+      }
+
+      // Initial show
+      showCurrent();
+
+      // Cycle every ~3.4s
       setInterval(() => {
-        idx = (idx + 1) % state.photos.length;
-        portrait.style.backgroundImage = `url('${state.photos[idx]}')`;
-      }, 7000);
+        idx = (idx + 1 + Math.floor(Math.random() * 2)) % state.photos.length;
+        layerToggle = 1 - layerToggle;
+        showCurrent();
+      }, 3400);
     }
+
+    const FLOATER_SHAPES = [
+      'shape-circle', 'shape-circle', 'shape-circle',  // weight circles a bit higher (default vibe)
+      'shape-squircle', 'shape-squircle',
+      'shape-rounded',
+      'shape-blob', 'shape-blob',
+      'shape-star',
+      'shape-hex',
+      'shape-diamond'
+    ];
 
     function spawnFloaters() {
       const container = document.getElementById('floaters');
@@ -865,7 +1053,8 @@
       const count = havePhotos ? Math.min(28, state.photos.length * 2) : 10;
       for (let i = 0; i < count; i++) {
         const el = document.createElement('div');
-        el.className = 'floater';
+        const shape = FLOATER_SHAPES[Math.floor(Math.random() * FLOATER_SHAPES.length)];
+        el.className = 'floater ' + shape;
         if (havePhotos) {
           const src = state.photos[i % state.photos.length];
           el.innerHTML = `<img src="${src}" alt="">`;
@@ -929,20 +1118,7 @@
       );
     }
 
-    function rotateSubtitle() {
-      let sIdx = 0;
-      setInterval(() => {
-        sIdx = (sIdx + 1) % subtitles.length;
-        const el = document.getElementById('subtitle');
-        gsap.to(el, {
-          opacity: 0, y: -10, duration: 0.4,
-          onComplete: () => {
-            el.textContent = subtitles[sIdx];
-            gsap.fromTo(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 });
-          }
-        });
-      }, 6000);
-    }
+    function rotateSubtitle() { /* removed — bean-name badge serves this role now */ }
 
     // Audio
     const audio = document.getElementById('audio');
@@ -961,6 +1137,10 @@
     function play() {
       if (state.songs.length === 0) return;
       if (state.currentSong === -1) loadSong(0);
+      // Defensive unmute: if user clicks play before autoplay's then() runs, we'd otherwise
+      // stay muted forever. Always unmute on a manual play click.
+      audio.muted = false;
+      if (audio.volume === 0) audio.volume = state.userMuted ? 0 : (state.userVolume ?? 1);
       audio.play().catch(err => console.warn('play blocked:', err));
       state.isPlaying = true;
       playBtn.textContent = '⏸';
@@ -1012,7 +1192,7 @@
 
     let hintHidden = false;
     function handleClick(e) {
-      if (e.target.closest('#player') || e.target.closest('#portrait')) return;
+      if (e.target.closest('#player') || e.target.closest('#bean-card')) return;
       if (e.target.closest('#arcade-overlay') || e.target.closest('#volume-popover')) return;
       const x = e.clientX ?? (e.touches && e.touches[0]?.clientX);
       const y = e.clientY ?? (e.touches && e.touches[0]?.clientY);
@@ -1029,8 +1209,8 @@
     }
     document.addEventListener('click', handleClick);
 
-    document.getElementById('portrait').addEventListener('click', () => {
-      const rect = document.getElementById('portrait').getBoundingClientRect();
+    document.getElementById('bean-card').addEventListener('click', () => {
+      const rect = document.getElementById('bean-card').getBoundingClientRect();
       for (let i = 0; i < 14; i++) {
         spawnConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
       }
@@ -1196,6 +1376,7 @@
         const unmute = () => {
           if (!audio.muted) return;
           audio.muted = false;
+          ensureAudioGraph();
           const target = (state.userMuted ? 0 : (state.userVolume ?? 1));
           gsap.to(audio, { volume: target, duration: 1.4, ease: 'power1.out' });
         };
@@ -1205,6 +1386,131 @@
         // Even muted autoplay blocked — leave it for manual play
       });
     }
+
+    // ====== Frequency visualiser ======
+    let audioCtx = null;
+    let audioSource = null;
+    let analyser = null;
+    let freqData = null;
+    let bassEnergy = 0;
+    const vizCanvas = document.getElementById('viz');
+    const vizCtx = vizCanvas.getContext('2d');
+
+    function fitViz() {
+      // Cap at DPR 1 — Chrome can choke on a 4K full-screen canvas with per-frame redraws
+      const dpr = 1;
+      vizCanvas.width = Math.floor(window.innerWidth * dpr);
+      vizCanvas.height = Math.floor(window.innerHeight * dpr);
+      vizCanvas.style.width = window.innerWidth + 'px';
+      vizCanvas.style.height = window.innerHeight + 'px';
+      vizCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    fitViz();
+    window.addEventListener('resize', fitViz);
+
+    function ensureAudioGraph() {
+      // Always unmute audio on first interaction (covers the case where autoplay's .then()
+      // hadn't fired yet — its unmute listener might still be queued after this click)
+      if (audio.muted) {
+        audio.muted = false;
+        const target = state.userMuted ? 0 : (state.userVolume ?? 1);
+        // If volume was 0 (autoplay-induced), fade it up; else snap.
+        if (audio.volume < target) {
+          if (window.gsap) gsap.to(audio, { volume: target, duration: 1.0, ease: 'power1.out' });
+          else audio.volume = target;
+        }
+      }
+      if (audioCtx) {
+        if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+        return;
+      }
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      try {
+        audioCtx = new Ctx();
+        audioSource = audioCtx.createMediaElementSource(audio);
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 512;
+        analyser.smoothingTimeConstant = 0.78;
+        audioSource.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        freqData = new Uint8Array(analyser.frequencyBinCount);
+        if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      } catch (e) {
+        console.warn('audio graph init failed', e);
+      }
+    }
+
+    // Hook first-interaction → ensureAudioGraph (covers manual play, in case autoplay was blocked)
+    ['pointerdown', 'click', 'keydown', 'touchstart'].forEach(evt =>
+      document.addEventListener(evt, ensureAudioGraph, { once: true, passive: true })
+    );
+
+    let vizFrame = 0;
+    function drawViz() {
+      requestAnimationFrame(drawViz);
+      // Render every other frame (~30fps) to keep cost down
+      vizFrame++;
+      if (vizFrame % 2 !== 0) return;
+
+      vizCtx.clearRect(0, 0, vizCanvas.width, vizCanvas.height);
+      if (!analyser || !freqData) return;
+      analyser.getByteFrequencyData(freqData);
+
+      const portrait = document.getElementById('bean-card');
+      const rect = portrait.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const innerR = rect.width / 2 + 18;
+      // Big halo: bars span much further so the (heavily blurred) canvas becomes a glow field
+      const maxBarLen = Math.max(window.innerWidth, window.innerHeight) * 0.95;
+
+      // Bass energy from first ~6% of bins
+      const bassBins = Math.max(2, Math.floor(freqData.length * 0.06));
+      let bsum = 0;
+      for (let i = 0; i < bassBins; i++) bsum += freqData[i];
+      const bass = (bsum / bassBins) / 255;
+      bassEnergy = bassEnergy * 0.72 + bass * 0.28;
+      document.documentElement.style.setProperty('--bass', bassEnergy.toFixed(3));
+
+      // Fewer, fatter bars — they'll blur into a giant aurora behind the card
+      const N = 48;
+      const useBins = Math.floor(freqData.length * 0.6);
+      vizCtx.lineCap = 'round';
+      const hueShift = (performance.now() * 0.04) % 360;
+      for (let i = 0; i < N; i++) {
+        const t = i / N;
+        const bin = Math.floor(Math.pow(t, 0.85) * useBins);
+        const v = freqData[bin] / 255;
+        if (v < 0.05) continue;
+        const len = v * maxBarLen;
+        const angle = t * Math.PI * 2 - Math.PI / 2;
+        const sa = Math.sin(angle), ca = Math.cos(angle);
+        const x1 = cx + ca * innerR;
+        const y1 = cy + sa * innerR;
+        const x2 = cx + ca * (innerR + len);
+        const y2 = cy + sa * (innerR + len);
+
+        const hue = (t * 360 + hueShift) % 360;
+        // Use rgba/hsla so blur over-saturation doesn't crush colors
+        vizCtx.strokeStyle = `hsla(${hue}, 100%, ${55 + v * 25}%, ${0.55 + v * 0.4})`;
+        vizCtx.lineWidth = 28 + v * 18;
+        vizCtx.beginPath();
+        vizCtx.moveTo(x1, y1);
+        vizCtx.lineTo(x2, y2);
+        vizCtx.stroke();
+      }
+
+      // Bass-driven outer ring — fatter to register through the blur
+      if (bassEnergy > 0.06) {
+        vizCtx.beginPath();
+        vizCtx.arc(cx, cy, innerR + maxBarLen * 0.5 * bassEnergy, 0, Math.PI * 2);
+        vizCtx.strokeStyle = `rgba(255,215,0,${0.15 + bassEnergy * 0.35})`;
+        vizCtx.lineWidth = 6 + bassEnergy * 12;
+        vizCtx.stroke();
+      }
+    }
+    requestAnimationFrame(drawViz);
 
     // === Volume control (desktop slider + mobile popover) ===
     const volumeBtn = document.getElementById('volume-btn');
@@ -1385,7 +1691,7 @@
 
     (async () => {
       await loadManifest();
-      setupPortrait();
+      setupBeanCard();
       spawnFloaters();
       rotateSubtitle();
       tryAutoplay();

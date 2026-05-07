@@ -1,0 +1,28 @@
+{
+  "photos": [
+    "photos/img_0091.jpg",
+    "photos/img_1754.jpg",
+    "photos/img_2124.jpg",
+    "photos/img_2429.jpg",
+    "photos/img_3267.jpg",
+    "photos/img_4717.jpg",
+    "photos/img_5169.jpg",
+    "photos/img_5763.jpg",
+    "photos/img_5802.jpg",
+    "photos/img_7050.jpg",
+    "photos/img_7051.jpg",
+    "photos/img_7061.jpg",
+    "photos/img_7354.jpg",
+    "photos/img_7367.jpg"
+  ],
+  "songs": [
+    {
+      "file": "audio/chombus-bean-atmospheric-dark-ritual.mp3",
+      "title": "chombus bean atmospheric dark ritual"
+    },
+    {
+      "file": "audio/squambus-city-bean.mp3",
+      "title": "squambus city bean"
+    }
+  ]
+}

@@ -1,109 +1,862 @@
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chombus</title>
-    <style type="text/css">
-        body {
-            overflow: hidden;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bean — Patron Saint of Chombus</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐶%3C/text%3E%3C/svg%3E">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Comic Sans MS', 'Comic Sans', 'Chalkboard SE', cursive;
+      color: #fff;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background: linear-gradient(45deg,
+        #ff006e, #ff8500, #ffd700, #00ff7f, #00bfff, #8a2be2, #ff1493);
+      background-size: 400% 400%;
+      animation: gradientShift 18s ease infinite;
+      perspective: 1400px;
+      perspective-origin: 50% 45%;
+    }
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.18), transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(255,215,0,0.22), transparent 40%);
+      pointer-events: none;
+      z-index: -1;
+    }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: 'Comic Sans', 'Comic Sans MS', 'cursive';
-            background-image: url(https://i.imgur.com/LlsX4jf.png);
-            background-size: cover;
-            background-position: top;
-            background-repeat: no-repeat;
-        }
+    .shrine {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      padding: 1rem;
+      padding-bottom: 7rem;
+    }
 
-        #chombus {
-            font-size: 15rem;
-            color: #000;
-        }
+    #title {
+      font-size: clamp(2.6rem, 11vw, 9.5rem);
+      font-weight: 900;
+      margin: 0;
+      letter-spacing: 0.08em;
+      text-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+      filter: drop-shadow(0 0 30px rgba(255,255,255,0.35));
+      transform-style: preserve-3d;
+      animation: titleSpin 11s linear infinite;
+    }
+    @keyframes titleSpin {
+      0% { transform: rotateY(0deg); }
+      100% { transform: rotateY(360deg); }
+    }
+    #title span {
+      display: inline-block;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+    #title span:nth-child(1) { color: #ff1744; animation-delay: 0s; }
+    #title span:nth-child(2) { color: #ff9100; animation-delay: 0.08s; }
+    #title span:nth-child(3) { color: #ffea00; animation-delay: 0.16s; }
+    #title span:nth-child(4) { color: #00e676; animation-delay: 0.24s; }
+    #title span:nth-child(5) { color: #00b0ff; animation-delay: 0.32s; }
+    #title span:nth-child(6) { color: #b388ff; animation-delay: 0.40s; }
+    #title span:nth-child(7) { color: #ff4081; animation-delay: 0.48s; }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0) rotate(-4deg) scale(1); }
+      50% { transform: translateY(-25px) rotate(4deg) scale(1.1); }
+    }
 
-        span:nth-child(1) {
-            color: red
-        }
+    #portrait {
+      position: relative;
+      width: clamp(200px, 30vw, 380px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 8px solid white;
+      box-shadow: 0 0 0 4px gold, 0 0 60px rgba(255,215,0,0.6), 0 20px 60px rgba(0,0,0,0.5);
+      animation: holyGlow 4s ease-in-out infinite, globeWobble 7s ease-in-out infinite;
+      cursor: pointer;
+      background-color: white;
+      background-size: 220% 100%;
+      background-repeat: repeat-x;
+      background-position: 0% center;
+      transform-style: preserve-3d;
+    }
+    #portrait.spinning {
+      animation: holyGlow 4s ease-in-out infinite, globeSpin 9s linear infinite, globeWobble 7s ease-in-out infinite;
+    }
+    #portrait::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(ellipse 80% 60% at 28% 24%, rgba(255,255,255,0.55), transparent 55%),
+        radial-gradient(circle at 75% 80%, rgba(0,0,0,0.55), transparent 55%);
+      pointer-events: none;
+      mix-blend-mode: overlay;
+      z-index: 2;
+    }
+    #portrait::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(255,255,255,0.25), transparent 40%);
+      pointer-events: none;
+      z-index: 3;
+    }
+    #portrait .placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8rem;
+      background: white;
+      position: relative;
+      z-index: 1;
+    }
+    @keyframes holyGlow {
+      0%, 100% { box-shadow: 0 0 0 4px gold, 0 0 50px rgba(255,215,0,0.6), 0 20px 60px rgba(0,0,0,0.5); }
+      50% { box-shadow: 0 0 0 4px gold, 0 0 120px rgba(255,215,0,1), 0 0 200px rgba(255,215,0,0.4), 0 20px 60px rgba(0,0,0,0.5); }
+    }
+    @keyframes globeSpin {
+      from { background-position: 0% center; }
+      to { background-position: 200% center; }
+    }
+    @keyframes globeWobble {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
 
-        span:nth-child(2) {
-            color: orange;
-        }
+    #subtitle {
+      font-size: clamp(0.9rem, 2.2vw, 1.6rem);
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+      max-width: 90vw;
+    }
 
-        span:nth-child(3) {
-            color: yellow;
-        }
+    #floaters {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .floater {
+      position: absolute;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid white;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+      will-change: transform;
+      transform-style: preserve-3d;
+    }
+    .shrine {
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .floater img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .floater .emoji {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      background: white;
+    }
 
-        span:nth-child(4) {
-            color: green;
-        }
+    .confetti {
+      position: fixed;
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      overflow: hidden;
+      pointer-events: none;
+      border: 4px solid white;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      z-index: 60;
+    }
+    .confetti img, .confetti .emoji {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      background: white;
+    }
 
-        span:nth-child(5) {
-            color: blue;
-        }
+    #player {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      border-top: 4px solid gold;
+      z-index: 70;
+    }
+    #player button {
+      background: rgba(255,255,255,0.08);
+      border: 2px solid white;
+      color: white;
+      width: 48px; height: 48px;
+      min-width: 48px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      transition: all 0.18s;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    #player button:hover {
+      background: gold;
+      color: black;
+      transform: scale(1.1);
+    }
+    #player button:active { transform: scale(0.92); }
+    #player button:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+    }
+    #player .now-playing {
+      flex: 1;
+      min-width: 0;
+      text-shadow: 1px 1px 0 black;
+    }
+    #player .label {
+      opacity: 0.55;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+    #song-title {
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-        span:nth-child(6) {
-            color: purple;
-        }
+    .hint {
+      position: fixed;
+      top: 3.5rem; right: 1rem;
+      font-size: 0.85rem;
+      opacity: 0.75;
+      text-shadow: 1px 1px 0 black;
+      pointer-events: none;
+      animation: blink 2.4s ease-in-out infinite;
+      z-index: 40;
+    }
 
-        span:nth-child(7) {
-            color: pink;
-        }
-    </style>
+    .marquee {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 2.6rem;
+      overflow: hidden;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 3px solid gold;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marqueeScroll 28s linear infinite;
+      font-weight: 900;
+      font-size: 1.05rem;
+      letter-spacing: 0.18em;
+      color: gold;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    }
+    .marquee-track span { padding: 0 1.5rem; }
+    @keyframes marqueeScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    #sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .sparkle {
+      position: absolute;
+      font-size: 1.2rem;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+    }
+
+    .zoom-event {
+      position: fixed;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 6px solid white;
+      box-shadow: 0 0 0 5px gold, 0 0 100px rgba(255,215,0,0.8), 0 30px 80px rgba(0,0,0,0.6);
+      z-index: 55;
+      pointer-events: none;
+    }
+    .zoom-event img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .rain {
+      position: fixed;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 3px solid white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    @media (hover: hover) {
+      html, body, * { cursor: none !important; }
+    }
+    .cursor-dot {
+      position: fixed;
+      top: 0; left: 0;
+      width: 36px; height: 36px;
+      margin-left: -18px; margin-top: -18px;
+      pointer-events: none;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.7rem;
+      filter: drop-shadow(0 0 10px rgba(255,215,0,0.9)) drop-shadow(0 0 20px rgba(255,255,255,0.5));
+      will-change: transform;
+      animation: cursorPulse 1s ease-in-out infinite;
+    }
+    @keyframes cursorPulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(1.25) rotate(180deg); }
+    }
+    .cursor-trail {
+      position: fixed;
+      pointer-events: none;
+      z-index: 998;
+      font-size: 1rem;
+      filter: drop-shadow(0 0 8px rgba(255,215,0,0.9));
+      will-change: transform, opacity;
+    }
+    @media (hover: none) {
+      .cursor-dot { display: none; }
+    }
+    .rain img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .rain .emoji {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      font-size: 2rem;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 0.75; }
+      50% { opacity: 0.3; }
+    }
+
+    .empty-msg {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      padding: 0.8rem 1.4rem;
+      border-radius: 14px;
+      font-size: 0.85rem;
+      max-width: 90vw;
+      text-align: center;
+      pointer-events: none;
+      z-index: 30;
+    }
+    .empty-msg code {
+      background: rgba(255,255,255,0.12);
+      padding: 0.1em 0.4em;
+      border-radius: 4px;
+      font-family: ui-monospace, monospace;
+      font-size: 0.85em;
+    }
+
+    @media (max-width: 600px) {
+      #player { gap: 0.4rem; padding: 0.7rem; }
+      #player button { width: 42px; height: 42px; min-width: 42px; font-size: 1.1rem; }
+      .shrine { padding-bottom: 6rem; gap: 1rem; }
+    }
+  </style>
 </head>
-
 <body>
-    <div class="container">
-        <!-- Youtube embed autoplay -->
-        <iframe width="560" height="315" src="https://www.youtube.com/watch?v=ONNsI_Z1df4" frameborder="0"
-            allow="autoplay; encrypted-media" allowfullscreen style="position: absolute; left: -9999px;"></iframe>
-        <h1 id="chombus">
-            <span>c</span><span>h</span></span><span>o</span><span>m</span><span>b</span><span>u</span><span>s</span>
-        </h1>
-
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>★ CHOMBUS ★ BEAN ETERNAL ★ LONG MAY HE REIGN ★ PATRON SAINT OF CHOMBUS ★ GOOD BOY ★ CHOMBUS.COM ★ </span>
+      <span>★ CHOMBUS ★ BEAN ETERNAL ★ LONG MAY HE REIGN ★ PATRON SAINT OF CHOMBUS ★ GOOD BOY ★ CHOMBUS.COM ★ </span>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function () {
+  </div>
 
-            // Animate the word 'Chombus' using GSAP
-            gsap.fromTo("#chombus",
-                { opacity: 0, scale: 0.5 },
-                { opacity: 1, scale: 1, duration: 2, repeat: -1, yoyo: true, ease: "power1.inOut" }
-            );
+  <div id="floaters"></div>
+  <div id="sparkles"></div>
+  <div class="cursor-dot" id="cursor">⭐</div>
 
-            // Add more animations to make it more dynamic
-            gsap.fromTo(".container",
-                { scale: 1 },
-                { scale: 1.1, duration: 5, repeat: -1, yoyo: true, ease: "sine.inOut" }
-            );
+  <main class="shrine">
+    <h1 id="title">
+      <span>C</span><span>H</span><span>O</span><span>M</span><span>B</span><span>U</span><span>S</span>
+    </h1>
+    <div id="portrait" title="bean">
+      <div class="placeholder">🐶</div>
+    </div>
+    <div id="subtitle">Patron Saint of Chombus · Eternal Good Boy</div>
+  </main>
 
-            // make 3d effect
-            gsap.fromTo("#chombus",
-                { perspective: 100 },
-                { perspective: 1000, duration: 5, repeat: -1, ease: "none" }
-            );
+  <div class="hint" id="hint">click anywhere</div>
 
-            // make it spin
-            gsap.fromTo("#chombus",
-                { rotation: 0 },
-                { rotation: 360, duration: 5, repeat: -1, ease: "none" }
-            );
+  <div id="player">
+    <button id="prev" title="Previous (←)">⏮</button>
+    <button id="playpause" title="Play / Pause (Space)">▶</button>
+    <button id="next" title="Next (→)">⏭</button>
+    <button id="shuffle" title="Random (R)">🔀</button>
+    <div class="now-playing">
+      <div class="label">now playing</div>
+      <div id="song-title">— add MP3s to /audio —</div>
+    </div>
+    <audio id="audio" preload="auto" muted></audio>
+  </div>
 
-            // add a background image
-            gsap.fromTo(".container",
-                { backgroundImage: "url(https://i.imgur.com/Vgl4PQr.jpeg)" },
-                { duration: 5, repeat: -1, ease: "none" }
-            );
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script>
+    const state = { photos: [], songs: [], currentSong: -1, isPlaying: false };
 
-            // inject youtube embed
+    const subtitles = [
+      'Patron Saint of Chombus · Eternal Good Boy',
+      'Very Old · Very Loved · Very Bean',
+      'Bean · The Bean · King Bean',
+      'Beanus Maximus · Lord of Naps',
+      'Established Dog · Extremely Online',
+      'CHOMBUS · CHOMBUS · CHOMBUS',
+      'A Dog Among Dogs · The Dog',
+      'Long May He Reign'
+    ];
 
+    async function loadManifest() {
+      try {
+        const res = await fetch('manifest.json?t=' + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          state.photos = Array.isArray(data.photos) ? data.photos : [];
+          state.songs = Array.isArray(data.songs) ? data.songs : [];
+        }
+      } catch (e) {
+        console.warn('No manifest yet — drop files in /photos and /audio, then ./update-manifest.sh');
+      }
+    }
+
+    function setupPortrait() {
+      const portrait = document.getElementById('portrait');
+      if (state.photos.length === 0) return;
+      portrait.innerHTML = '';
+      portrait.classList.add('spinning');
+      portrait.style.backgroundImage = `url('${state.photos[0]}')`;
+      let idx = 0;
+      setInterval(() => {
+        idx = (idx + 1) % state.photos.length;
+        portrait.style.backgroundImage = `url('${state.photos[idx]}')`;
+      }, 7000);
+    }
+
+    function spawnFloaters() {
+      const container = document.getElementById('floaters');
+      const havePhotos = state.photos.length > 0;
+      const count = havePhotos ? Math.min(28, state.photos.length * 2) : 10;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('div');
+        el.className = 'floater';
+        if (havePhotos) {
+          const src = state.photos[i % state.photos.length];
+          el.innerHTML = `<img src="${src}" alt="">`;
+        } else {
+          el.innerHTML = '<div class="emoji">🐶</div>';
+        }
+        // Wide depth range for 3D feel
+        const depth = (Math.random() - 0.5) * 600;
+        const sizeBase = 50 + Math.random() * 90;
+        const sizeAdj = sizeBase * (1 + depth / 1200);
+        el.style.width = el.style.height = sizeAdj + 'px';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.top = Math.random() * 100 + 'vh';
+        el.style.opacity = 0.55 + Math.random() * 0.45;
+        gsap.set(el, { z: depth, rotationY: Math.random() * 60 - 30 });
+        container.appendChild(el);
+        animateFloater(el);
+      }
+    }
+
+    function animateFloater(el) {
+      const drift = () => {
+        gsap.to(el, {
+          x: '+=' + ((Math.random() - 0.5) * window.innerWidth * 0.7),
+          y: '+=' + ((Math.random() - 0.5) * window.innerHeight * 0.7),
+          rotation: '+=' + ((Math.random() - 0.5) * 360),
+          rotationY: '+=' + ((Math.random() - 0.5) * 180),
+          z: '+=' + ((Math.random() - 0.5) * 200),
+          duration: 8 + Math.random() * 12,
+          ease: 'sine.inOut',
+          onComplete: drift
         });
-    </script>
-</body>
+      };
+      drift();
+    }
 
+    function spawnConfetti(x, y) {
+      const el = document.createElement('div');
+      el.className = 'confetti';
+      if (state.photos.length > 0) {
+        const src = state.photos[Math.floor(Math.random() * state.photos.length)];
+        el.innerHTML = `<img src="${src}" alt="">`;
+      } else {
+        el.innerHTML = '<div class="emoji">🐶</div>';
+      }
+      el.style.left = (x - 55) + 'px';
+      el.style.top = (y - 55) + 'px';
+      document.body.appendChild(el);
+      gsap.fromTo(el,
+        { scale: 0, rotation: 0, opacity: 1 },
+        {
+          scale: 1 + Math.random() * 0.6,
+          rotation: (Math.random() - 0.5) * 720,
+          x: (Math.random() - 0.5) * 500,
+          y: window.innerHeight - y + 80,
+          opacity: 0,
+          duration: 2 + Math.random() * 1.2,
+          ease: 'power1.in',
+          onComplete: () => el.remove()
+        }
+      );
+    }
+
+    function rotateSubtitle() {
+      let sIdx = 0;
+      setInterval(() => {
+        sIdx = (sIdx + 1) % subtitles.length;
+        const el = document.getElementById('subtitle');
+        gsap.to(el, {
+          opacity: 0, y: -10, duration: 0.4,
+          onComplete: () => {
+            el.textContent = subtitles[sIdx];
+            gsap.fromTo(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4 });
+          }
+        });
+      }, 6000);
+    }
+
+    // Audio
+    const audio = document.getElementById('audio');
+    const playBtn = document.getElementById('playpause');
+    const songTitle = document.getElementById('song-title');
+
+    function loadSong(idx) {
+      if (state.songs.length === 0) return;
+      idx = ((idx % state.songs.length) + state.songs.length) % state.songs.length;
+      state.currentSong = idx;
+      const song = state.songs[idx];
+      audio.src = song.file;
+      songTitle.textContent = song.title;
+    }
+
+    function play() {
+      if (state.songs.length === 0) return;
+      if (state.currentSong === -1) loadSong(0);
+      audio.play().catch(err => console.warn('play blocked:', err));
+      state.isPlaying = true;
+      playBtn.textContent = '⏸';
+    }
+
+    function pause() {
+      audio.pause();
+      state.isPlaying = false;
+      playBtn.textContent = '▶';
+    }
+
+    function togglePlay() { state.isPlaying ? pause() : play(); }
+
+    function next() {
+      if (state.songs.length === 0) return;
+      loadSong(state.currentSong + 1);
+      if (state.isPlaying) play();
+    }
+
+    function prev() {
+      if (state.songs.length === 0) return;
+      loadSong(state.currentSong - 1);
+      if (state.isPlaying) play();
+    }
+
+    function shuffle() {
+      if (state.songs.length === 0) return;
+      let nextIdx;
+      do {
+        nextIdx = Math.floor(Math.random() * state.songs.length);
+      } while (nextIdx === state.currentSong && state.songs.length > 1);
+      loadSong(nextIdx);
+      play();
+    }
+
+    playBtn.addEventListener('click', togglePlay);
+    document.getElementById('next').addEventListener('click', next);
+    document.getElementById('prev').addEventListener('click', prev);
+    document.getElementById('shuffle').addEventListener('click', shuffle);
+    audio.addEventListener('ended', shuffle);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.matches('input, textarea')) return;
+      if (e.code === 'Space') { e.preventDefault(); togglePlay(); }
+      else if (e.code === 'ArrowRight') next();
+      else if (e.code === 'ArrowLeft') prev();
+      else if (e.code === 'KeyR') shuffle();
+    });
+
+    let hintHidden = false;
+    function handleClick(e) {
+      if (e.target.closest('#player') || e.target.closest('#portrait')) return;
+      const x = e.clientX ?? (e.touches && e.touches[0]?.clientX);
+      const y = e.clientY ?? (e.touches && e.touches[0]?.clientY);
+      if (x == null || y == null) return;
+      // CHAOS: spawn a burst
+      const burst = 6 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < burst; i++) {
+        spawnConfetti(x + (Math.random() - 0.5) * 80, y + (Math.random() - 0.5) * 80);
+      }
+      if (!hintHidden) {
+        hintHidden = true;
+        gsap.to('#hint', { opacity: 0, duration: 0.5, onComplete: () => document.getElementById('hint').remove() });
+      }
+    }
+    document.addEventListener('click', handleClick);
+
+    document.getElementById('portrait').addEventListener('click', () => {
+      const rect = document.getElementById('portrait').getBoundingClientRect();
+      for (let i = 0; i < 14; i++) {
+        spawnConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      }
+    });
+
+    // ✨ Sparkles ✨
+    function spawnSparkle() {
+      const el = document.createElement('div');
+      el.className = 'sparkle';
+      const glyphs = ['✨', '⭐', '🌟', '💫', '⚡', '🔆'];
+      el.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.top = Math.random() * 100 + 'vh';
+      el.style.fontSize = (0.9 + Math.random() * 1.4) + 'rem';
+      document.getElementById('sparkles').appendChild(el);
+      gsap.fromTo(el,
+        { scale: 0, rotation: 0, opacity: 0 },
+        {
+          scale: 1, rotation: 360, opacity: 1, duration: 0.5,
+          onComplete: () => gsap.to(el, { opacity: 0, scale: 0, duration: 0.6, onComplete: () => el.remove() })
+        }
+      );
+    }
+    setInterval(spawnSparkle, 220);
+
+    // 🌧️ Auto-rain Bean confetti from the sky
+    function spawnRain() {
+      const x = Math.random() * window.innerWidth;
+      const startY = -120;
+      const el = document.createElement('div');
+      el.className = 'rain';
+      if (state.photos.length > 0) {
+        const src = state.photos[Math.floor(Math.random() * state.photos.length)];
+        el.innerHTML = `<img src="${src}">`;
+      } else {
+        el.innerHTML = '<div class="emoji">🐶</div>';
+      }
+      const size = 50 + Math.random() * 70;
+      el.style.width = el.style.height = size + 'px';
+      el.style.left = x + 'px';
+      el.style.top = startY + 'px';
+      document.body.appendChild(el);
+      gsap.to(el, {
+        y: window.innerHeight + 200,
+        x: '+=' + ((Math.random() - 0.5) * 200),
+        rotation: (Math.random() - 0.5) * 720,
+        duration: 4 + Math.random() * 4,
+        ease: 'none',
+        onComplete: () => el.remove()
+      });
+    }
+    setInterval(spawnRain, 1400);
+
+    // 💥 Periodic giant Bean explosion
+    function photoExplosion() {
+      if (state.photos.length === 0) return;
+      const src = state.photos[Math.floor(Math.random() * state.photos.length)];
+      const size = Math.min(window.innerWidth, window.innerHeight) * (0.55 + Math.random() * 0.2);
+      const el = document.createElement('div');
+      el.className = 'zoom-event';
+      el.innerHTML = `<img src="${src}">`;
+      el.style.width = el.style.height = size + 'px';
+      el.style.left = (window.innerWidth - size) / 2 + 'px';
+      el.style.top = (window.innerHeight - size) / 2 + 'px';
+      document.body.appendChild(el);
+      gsap.fromTo(el,
+        { scale: 0, rotation: -180, opacity: 0 },
+        {
+          scale: 1, rotation: 0, opacity: 1, duration: 0.5, ease: 'back.out(1.6)',
+          onComplete: () => gsap.to(el, {
+            scale: 0, rotation: 540, opacity: 0,
+            duration: 0.6, ease: 'back.in(1.4)', delay: 1.2,
+            onComplete: () => el.remove()
+          })
+        }
+      );
+    }
+    setInterval(photoExplosion, 8500);
+
+    // 🪄 Parallax + custom cursor with trail
+    let mx = 0, my = 0, tx = 0, ty = 0;
+    const cursor = document.getElementById('cursor');
+    let lastTrailAt = 0;
+    const trailGlyphs = ['✨', '⭐', '🌟', '💫', '⚡'];
+
+    function spawnTrail(x, y) {
+      const el = document.createElement('div');
+      el.className = 'cursor-trail';
+      el.textContent = trailGlyphs[Math.floor(Math.random() * trailGlyphs.length)];
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      el.style.fontSize = (0.7 + Math.random() * 0.7) + 'rem';
+      document.body.appendChild(el);
+      gsap.fromTo(el,
+        { scale: 0.4, opacity: 1, rotation: 0 },
+        {
+          scale: 1.4,
+          x: (Math.random() - 0.5) * 70,
+          y: 25 + Math.random() * 50,
+          rotation: (Math.random() - 0.5) * 540,
+          opacity: 0,
+          duration: 0.9,
+          ease: 'power2.out',
+          onComplete: () => el.remove()
+        }
+      );
+    }
+
+    document.addEventListener('mousemove', (e) => {
+      mx = (e.clientX / window.innerWidth - 0.5) * 2;
+      my = (e.clientY / window.innerHeight - 0.5) * 2;
+      if (cursor) {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+      }
+      const now = performance.now();
+      if (now - lastTrailAt > 32) {
+        spawnTrail(e.clientX, e.clientY);
+        lastTrailAt = now;
+      }
+    });
+    function parallaxLoop() {
+      tx += (mx - tx) * 0.08;
+      ty += (my - ty) * 0.08;
+      const shrine = document.querySelector('.shrine');
+      const floaters = document.getElementById('floaters');
+      if (shrine) {
+        shrine.style.transform = `rotateY(${tx * 9}deg) rotateX(${-ty * 6}deg) translateZ(${Math.abs(tx) * 20}px)`;
+      }
+      if (floaters) {
+        floaters.style.transform = `translate3d(${-tx * 40}px, ${-ty * 40}px, 0)`;
+      }
+      requestAnimationFrame(parallaxLoop);
+    }
+    requestAnimationFrame(parallaxLoop);
+
+    // Touch parallax for mobile
+    document.addEventListener('touchmove', (e) => {
+      if (!e.touches[0]) return;
+      mx = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
+      my = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
+    }, { passive: true });
+
+    function showEmptyMsg() {
+      const haveAny = state.photos.length > 0 || state.songs.length > 0;
+      if (haveAny) return;
+      const msg = document.createElement('div');
+      msg.className = 'empty-msg';
+      msg.innerHTML = 'drop bean photos in <code>/photos</code>, songs in <code>/audio</code>, then run <code>./update-manifest.sh</code>';
+      document.body.appendChild(msg);
+    }
+
+    function tryAutoplay() {
+      if (state.songs.length === 0) return;
+      const startIdx = Math.floor(Math.random() * state.songs.length);
+      loadSong(startIdx);
+      audio.muted = true;
+      audio.volume = 0;
+      audio.play().then(() => {
+        state.isPlaying = true;
+        playBtn.textContent = '⏸';
+        // Unmute + fade in on first interaction
+        const unmute = () => {
+          if (!audio.muted) return;
+          audio.muted = false;
+          gsap.to(audio, { volume: 1, duration: 1.4, ease: 'power1.out' });
+        };
+        ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll']
+          .forEach(evt => document.addEventListener(evt, unmute, { once: true, passive: true }));
+      }).catch(() => {
+        // Even muted autoplay blocked — leave it for manual play
+      });
+    }
+
+    (async () => {
+      await loadManifest();
+      setupPortrait();
+      spawnFloaters();
+      rotateSubtitle();
+      tryAutoplay();
+      showEmptyMsg();
+    })();
+  </script>
+</body>
 </html>

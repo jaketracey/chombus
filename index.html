@@ -185,34 +185,6 @@
       font-size: 7rem;
       z-index: 0;
     }
-    #bean-name {
-      position: relative;
-      flex: 0 0 auto;
-      padding: 0.55rem 1.4rem;
-      background: rgba(0,0,0,0.78);
-      border: 3px solid gold;
-      border-radius: 999px;
-      font-size: clamp(0.95rem, 2.2vw, 1.5rem);
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      color: gold;
-      text-shadow: 2px 2px 0 black, 0 0 18px rgba(255,215,0,0.6);
-      text-align: center;
-      max-width: 100%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      box-shadow: 0 8px 22px rgba(0,0,0,0.45), 0 0 30px rgba(255,215,0,0.35);
-      transform-origin: center;
-    }
-    #bean-name.flip {
-      animation: nameFlip 0.55s ease;
-    }
-    @keyframes nameFlip {
-      0%   { transform: scale(0.6) rotate(-8deg); opacity: 0; }
-      55%  { transform: scale(1.18) rotate(3deg); opacity: 1; }
-      100% { transform: scale(1) rotate(0); opacity: 1; }
-    }
     @keyframes holyGlow {
       0%, 100% { box-shadow: 0 0 0 4px gold, 0 0 50px rgba(255,215,0,0.6), 0 20px 60px rgba(0,0,0,0.5); }
       50% { box-shadow: 0 0 0 4px gold, 0 0 120px rgba(255,215,0,1), 0 0 200px rgba(255,215,0,0.4), 0 20px 60px rgba(0,0,0,0.5); }
@@ -895,7 +867,6 @@
           <div class="bean-frame-shine"></div>
         </div>
       </div>
-      <div id="bean-name">BEAN</div>
     </div>
     <a href="games/" class="arcade-btn" id="arcade-btn">🎮 Enter Bean's Arcade 🎮</a>
   </main>
@@ -959,106 +930,30 @@
       }
     }
 
-    const beanNames = [
-      'BEAN, ESQ.',
-      'MR. CHOMBUS',
-      'BEAN-OS THE GREAT',
-      'SIR REGINALD BEANFORD III',
-      'BEAN, P.I.',
-      'BEANIFER LOPEZ',
-      'ARCHBISHOP BEAN',
-      'BEAN — BUT TIRED',
-      'BEAN, OF THE HOUSE BEAN',
-      'BEAN PLATTER',
-      'DR. BEAN, PHD',
-      'BEAN-O-RAMA',
-      'CAPTAIN BEAN',
-      'BEAN VAN WINKLE',
-      'BEAN STALK',
-      'FAMOUS AMOS, B.B.',
-      'BEANNETTE',
-      'BEAN-ANA SPLIT',
-      'JOHN "BEAN" SMITH',
-      'BEAN FROM ACCOUNTING',
-      'DJ BEANSPRINKLES',
-      'AGENT BEAN',
-      'BEAN, AGE INDETERMINATE',
-      'SLEEPY BEAN, ESQ.',
-      'BEAN — UNRATED',
-      'BEAN: THE LEGEND',
-      'BEAN AKA BIG B',
-      'KING BEAN VII',
-      'BEAN OF THE CHOMBUS',
-      'PROFESSOR BEAN',
-      'BEAN, INTERNATIONAL MAN',
-      'BEAN-ATHAN',
-      'GRAND DUKE BEAN',
-      'CHEF BEAN',
-      'BEAN, AS HIMSELF',
-      'BEAN — STILL HUNGRY',
-      'BEANIE BABY (THE ORIGINAL)',
-      'BEAN, B.A. (HONS)',
-      'LIEUTENANT BEAN',
-      'BEAN HOLIDAY',
-      'BEAN-INO',
-      'NIGHT BEAN',
-      'BEAN, IN HIS PRIME',
-      'PASTOR BEAN',
-      'BEAN MARLEY',
-      'BEAN — RUNNING LATE',
-      'TINY BEAN',
-      'BEAN OF THE WEEK'
-    ];
-
     function setupBeanCard() {
       const a = document.getElementById('bean-photo-a');
       const b = document.getElementById('bean-photo-b');
-      const nameEl = document.getElementById('bean-name');
       const placeholder = document.querySelector('.bean-frame-placeholder');
-      if (state.photos.length === 0) {
-        nameEl.textContent = 'BEAN';
-        return;
-      }
+      if (state.photos.length === 0) return;
       placeholder.style.display = 'none';
       let idx = Math.floor(Math.random() * state.photos.length);
-      let lastNameIdx = -1;
       let layerToggle = 0; // 0 = a is foreground, 1 = b
       const layers = [a, b];
-
-      function pickName() {
-        let n;
-        do { n = Math.floor(Math.random() * beanNames.length); }
-        while (n === lastNameIdx && beanNames.length > 1);
-        lastNameIdx = n;
-        return beanNames[n];
-      }
 
       function showCurrent() {
         const top = layers[layerToggle];
         const back = layers[1 - layerToggle];
         top.style.backgroundImage = `url('${state.photos[idx]}')`;
-        // small delay for image decode then reveal
         requestAnimationFrame(() => {
           top.classList.add('show');
-          // Trigger ken-burns slow zoom on the photo
           requestAnimationFrame(() => top.classList.add('kenburns'));
         });
-        // Refresh name
-        nameEl.textContent = pickName();
-        nameEl.classList.remove('flip');
-        // Force reflow to restart the animation
-        void nameEl.offsetWidth;
-        nameEl.classList.add('flip');
-        // Hide back layer after the fade
         setTimeout(() => {
           back.classList.remove('show', 'kenburns');
         }, 750);
       }
 
-      // Initial show
       showCurrent();
-
-      // Cycle every ~3.4s
       setInterval(() => {
         idx = (idx + 1 + Math.floor(Math.random() * 2)) % state.photos.length;
         layerToggle = 1 - layerToggle;
